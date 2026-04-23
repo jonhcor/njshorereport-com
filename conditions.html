@@ -1,0 +1,1397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07111F">
+<title>Shore Report — NJ Fishing Conditions</title>
+<meta name="description" content="Real-time NJ fishing conditions. Water temp, waves, wind, tides and species-specific Go/No-Go for fluke, stripers and offshore tuna.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --navy:#07111F;--navy2:#0C1A2B;--navy3:#122236;--navy4:#1A2E46;
+  --teal:#1CBFAA;--amber:#F0A500;--red:#E84040;--blue:#3A9BDC;
+  --text:#E4EBF0;--t2:#8BA3B4;--t3:#4D6778;
+  --bdr:rgba(255,255,255,0.07);--bdr2:rgba(255,255,255,0.13);
+  --card:rgba(255,255,255,0.04);
+  --r:10px;--rl:16px;--rxl:20px;
+  --fd:'Bebas Neue',sans-serif;
+  --fm:'IBM Plex Mono',monospace;
+  --fb:'DM Sans',sans-serif;
+  --sb:env(safe-area-inset-bottom,0px);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:var(--navy);color:var(--text);font-family:var(--fb);min-height:100vh;}
+a{color:var(--t2);text-decoration:none;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--navy4);border-radius:99px;}
+
+/* ───── TOP BAR ───── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:rgba(7,17,31,0.95);
+  backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--bdr);
+  height:56px;display:flex;align-items:center;
+  padding:0 24px;gap:20px;
+}
+.logo{font-family:var(--fd);font-size:26px;letter-spacing:2px;line-height:1;white-space:nowrap;}
+.logo span{color:var(--teal);}
+.live-badge{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--teal);letter-spacing:0.08em;text-transform:uppercase;font-family:var(--fm);white-space:nowrap;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--teal);animation:blink 2s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.2;}}
+
+/* desktop region select in topbar */
+.topbar-region{
+  flex:1;max-width:320px;
+  background:var(--navy3);border:1px solid var(--bdr2);border-radius:var(--r);
+  padding:6px 12px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  transition:background 0.1s;
+}
+.topbar-region:hover{background:var(--navy4);}
+.tr-name{font-size:14px;font-weight:500;color:var(--text);}
+.tr-sub{font-size:11px;color:var(--t2);}
+.tr-chev{color:var(--t3);font-size:16px;}
+
+/* desktop tabs in topbar */
+.desk-tabs{display:flex;gap:4px;margin-left:auto;}
+.desk-tab{
+  padding:7px 16px;border-radius:var(--r);
+  font-size:13px;font-weight:500;color:var(--t2);
+  cursor:pointer;transition:all 0.12s;border:none;background:transparent;
+  font-family:var(--fb);white-space:nowrap;
+}
+.desk-tab:hover{color:var(--text);background:var(--card);}
+.desk-tab.active{color:var(--teal);background:rgba(28,191,170,0.1);}
+
+/* ───── LAYOUT ───── */
+.page-wrap{max-width:1100px;margin:0 auto;padding:0 20px 80px;}
+@media(max-width:700px){.page-wrap{padding:0 0 calc(80px + var(--sb));}}
+
+/* ad slots */
+.ad-top{
+  margin:14px 0 0;background:var(--navy2);border:1px dashed var(--bdr2);
+  border-radius:var(--r);min-height:60px;display:flex;align-items:center;
+  justify-content:center;font-size:10px;color:var(--t3);letter-spacing:0.07em;text-transform:uppercase;
+}
+.ad-mid{
+  margin:24px 0 0;background:var(--navy2);border:1px dashed var(--bdr2);
+  border-radius:var(--r);min-height:100px;display:flex;align-items:center;
+  justify-content:center;font-size:10px;color:var(--t3);letter-spacing:0.07em;text-transform:uppercase;
+}
+
+/* mobile region trigger (hidden on desktop) */
+.mob-region-trigger{
+  display:none;
+  margin:12px 16px 0;background:var(--navy3);border:1px solid var(--bdr2);
+  border-radius:var(--rl);padding:13px 16px;
+  align-items:center;justify-content:space-between;cursor:pointer;
+}
+.mob-region-trigger:active{background:var(--navy4);}
+.mrt-eye{font-size:10px;color:var(--t3);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:2px;font-family:var(--fm);}
+.mrt-name{font-size:17px;font-weight:500;}
+.mrt-sub{font-size:12px;color:var(--t2);}
+
+@media(max-width:700px){
+  .topbar-region,.desk-tabs{display:none;}
+  .mob-region-trigger{display:flex;}
+  .page-wrap{padding:0 0 calc(80px + var(--sb));}
+  .ad-top,.ad-mid{margin-left:16px;margin-right:16px;}
+}
+
+/* ───── FORECAST STRIP ───── */
+.fc-strip{
+  display:flex;gap:8px;overflow-x:auto;
+  padding:16px 0 4px;
+  scrollbar-width:none;-ms-overflow-style:none;
+}
+@media(max-width:700px){.fc-strip{padding:14px 16px 4px;}}
+.fc-strip::-webkit-scrollbar{display:none;}
+.fc-card{
+  flex:0 0 100px;background:var(--card);border:1px solid var(--bdr);
+  border-radius:var(--r);padding:12px 8px;text-align:center;
+  cursor:pointer;transition:border-color 0.15s,background 0.15s;
+  -webkit-user-select:none;user-select:none;
+}
+@media(max-width:700px){.fc-card{flex:0 0 72px;}}
+.fc-card:hover{background:var(--navy3);}
+.fc-card.fca{background:rgba(28,191,170,0.1);border-color:var(--teal);}
+.fc-day{font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--t2);margin-bottom:6px;font-family:var(--fm);}
+.fc-score{font-family:var(--fd);font-size:30px;letter-spacing:1px;line-height:1;margin-bottom:4px;}
+.fc-wind{font-size:11px;color:var(--t3);}
+@media(max-width:700px){.fc-score{font-size:26px;}.fc-wind{font-size:10px;}}
+
+/* score colors */
+.cgo{color:var(--teal);}.cmy{color:var(--amber);}.cno{color:var(--red);}
+
+/* ───── CONTENT PANELS ───── */
+.panel{display:none;}
+.panel.active{display:block;}
+
+/* desktop: conditions + species side by side */
+.desk-grid{display:grid;grid-template-columns:1fr 360px;gap:20px;align-items:start;}
+@media(max-width:960px){.desk-grid{grid-template-columns:1fr;}}
+@media(max-width:700px){.desk-grid{display:block;}}
+
+/* ───── VERDICT ───── */
+.verdict-block{
+  border-radius:var(--rxl);padding:20px 22px 18px;border:1px solid;margin-bottom:16px;
+}
+.vgo{border-color:rgba(28,191,170,0.4);background:rgba(28,191,170,0.08);}
+.vmy{border-color:rgba(240,165,0,0.4);background:rgba(240,165,0,0.07);}
+.vno{border-color:rgba(232,64,64,0.4);background:rgba(232,64,64,0.07);}
+.v-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.v-eye{font-size:11px;text-transform:uppercase;letter-spacing:0.09em;color:var(--t2);margin-bottom:4px;font-family:var(--fm);}
+.v-main{font-family:var(--fd);font-size:52px;letter-spacing:3px;line-height:1;}
+@media(max-width:700px){.v-main{font-size:44px;}}
+.v-issues{font-size:13px;color:var(--t2);line-height:1.5;}
+.score-bubble{
+  width:76px;height:76px;border-radius:50%;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  border:2px solid;flex-shrink:0;
+}
+.sgo{border-color:var(--teal);background:rgba(28,191,170,0.1);}
+.smy{border-color:var(--amber);background:rgba(240,165,0,0.1);}
+.sno{border-color:var(--red);background:rgba(232,64,64,0.1);}
+.sc-n{font-family:var(--fd);font-size:32px;line-height:1;}
+.sc-d{font-size:9px;color:var(--t2);font-family:var(--fm);}
+
+/* ───── WATER TEMP ───── */
+.wt-banner{
+  border-radius:var(--rl);padding:14px 18px;
+  background:rgba(58,155,220,0.1);border:1px solid rgba(58,155,220,0.3);
+  display:flex;align-items:center;gap:16px;margin-bottom:16px;
+}
+.wt-icon{font-size:28px;flex-shrink:0;}
+.wt-eye{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--t2);margin-bottom:3px;font-family:var(--fm);}
+.wt-val{font-family:var(--fd);font-size:36px;letter-spacing:2px;line-height:1;}
+.wt-note{font-size:13px;color:var(--t2);margin-top:3px;}
+
+/* ───── CONDITIONS GRID ───── */
+.sec-head{font-size:11px;text-transform:uppercase;letter-spacing:0.09em;color:var(--t3);padding:0 0 10px;font-family:var(--fm);}
+.cond-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:960px){.cond-grid{grid-template-columns:repeat(4,1fr);}}
+@media(max-width:700px){.cond-grid{grid-template-columns:repeat(2,1fr);gap:8px;padding:0 16px;}}
+.cc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 14px 12px;}
+.cc-icon{font-size:20px;margin-bottom:8px;display:block;line-height:1;}
+.cc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--t3);margin-bottom:3px;font-family:var(--fm);}
+.cc-val{font-family:var(--fd);font-size:30px;letter-spacing:1px;line-height:1;margin-bottom:2px;}
+.cc-unit{font-size:12px;color:var(--t2);margin-bottom:8px;}
+.pill{display:inline-block;font-size:10px;font-weight:500;padding:3px 9px;border-radius:99px;letter-spacing:0.03em;font-family:var(--fm);}
+.pgo{background:rgba(28,191,170,0.15);color:var(--teal);}
+.pwr{background:rgba(240,165,0,0.15);color:var(--amber);}
+.pno{background:rgba(232,64,64,0.15);color:var(--red);}
+.pnu{background:rgba(255,255,255,0.07);color:var(--t2);}
+
+/* ───── TIDES ───── */
+.tide-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+@media(max-width:700px){.tide-grid{gap:8px;padding:0 16px;}}
+.tc{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:13px 10px;text-align:center;}
+.tc-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--t3);margin-bottom:5px;font-family:var(--fm);}
+.tc-time{font-family:var(--fd);font-size:20px;letter-spacing:1px;}
+.tc-type{font-size:12px;color:var(--t2);margin-top:2px;}
+.thi{color:var(--teal);}.tlo{color:var(--t2);}
+
+/* ───── ZONE NOTE ───── */
+.zone-note{
+  background:var(--navy2);border:1px solid var(--bdr);
+  border-radius:var(--rl);padding:14px 18px;
+  font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px;
+}
+.zone-note strong{color:var(--text);font-weight:500;}
+
+/* ───── SPECIES PANEL ───── */
+.sp-panel-title{
+  font-size:11px;text-transform:uppercase;letter-spacing:0.09em;
+  color:var(--t3);padding:0 0 12px;font-family:var(--fm);
+}
+.sp-list{display:flex;flex-direction:column;gap:10px;}
+.sp-card{background:var(--card);border:1px solid var(--bdr);border-radius:var(--rl);overflow:hidden;}
+.sp-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:13px 14px;cursor:pointer;transition:background 0.1s;
+  -webkit-user-select:none;user-select:none;gap:8px;
+}
+.sp-hdr:hover{background:var(--navy3);}
+.sp-hdr:active{background:var(--navy4);}
+.sp-left{display:flex;align-items:center;gap:10px;flex:1;min-width:0;}
+.sp-emoji{display:flex;align-items:center;justify-content:center;width:56px;height:32px;flex-shrink:0;}
+.sp-name{font-size:15px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sp-sub{font-size:11px;color:var(--t2);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sp-right{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sp-pill{font-family:var(--fd);font-size:13px;letter-spacing:0.5px;padding:4px 10px;border-radius:99px;white-space:nowrap;}
+.spgo{background:rgba(28,191,170,0.15);color:var(--teal);}
+.spmy{background:rgba(240,165,0,0.15);color:var(--amber);}
+.spno{background:rgba(232,64,64,0.15);color:var(--red);}
+.sp-chev{font-size:18px;color:var(--t3);transition:transform 0.2s;}
+.sp-card.spx .sp-chev{transform:rotate(180deg);}
+.sp-body{display:none;border-top:1px solid var(--bdr);padding:16px 18px;}
+.sp-card.spx .sp-body{display:block;}
+.sp-metrics{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:12px;}
+@media(min-width:700px){.sp-metrics{grid-template-columns:repeat(4,1fr);}}
+.sp-m{background:var(--navy3);border-radius:var(--r);padding:11px 13px;}
+.sp-m-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.07em;color:var(--t3);margin-bottom:3px;font-family:var(--fm);}
+.sp-m-val{font-size:15px;font-weight:500;color:var(--text);margin-bottom:2px;}
+.sp-m-ideal{font-size:11px;color:var(--t3);}
+.sp-tip{
+  font-size:13px;color:var(--t2);line-height:1.65;
+  padding:12px 14px;background:var(--navy3);border-radius:var(--r);
+  border-left:3px solid var(--teal);
+}
+.tip-warn{border-left-color:var(--amber);}
+.tip-bad{border-left-color:var(--red);}
+
+/* ───── TIDES PAGE ───── */
+.tide-5day{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+@media(max-width:800px){.tide-5day{grid-template-columns:repeat(3,1fr);}}
+@media(max-width:500px){.tide-5day{grid-template-columns:1fr;}}
+.td-block{}
+.td-lbl{font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:8px;font-family:var(--fm);}
+.td-tides{display:flex;flex-direction:column;gap:6px;}
+.td-tide{background:var(--card);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;}
+.td-type{font-size:12px;color:var(--t2);}
+.td-time{font-family:var(--fd);font-size:18px;letter-spacing:1px;}
+
+/* ───── ZONES PAGE ───── */
+.zones-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+@media(max-width:600px){.zones-grid{grid-template-columns:1fr;}}
+.zg-group{}
+.zg-lbl{font-size:10px;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;font-family:var(--fm);}
+.zone-item{
+  display:flex;align-items:center;justify-content:space-between;
+  border:1px solid var(--bdr);border-radius:var(--r);padding:13px 16px;
+  margin-bottom:8px;cursor:pointer;transition:background 0.1s,border-color 0.1s;
+}
+.zone-item:hover{background:var(--navy3);border-color:var(--bdr2);}
+.zone-item:active{background:var(--navy4);}
+.zi-name{font-size:15px;font-weight:500;color:var(--text);}
+.zi-sub{font-size:12px;color:var(--t2);margin-top:2px;}
+.zi-arr{color:var(--t3);font-size:14px;}
+
+/* ───── BOTTOM NAV (mobile only) ───── */
+.bnav{
+  display:none;
+  position:fixed;bottom:0;left:0;right:0;
+  background:rgba(7,17,31,0.97);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
+  border-top:1px solid var(--bdr);
+  grid-template-columns:repeat(5,1fr);
+  padding-bottom:calc(6px + var(--sb));z-index:50;
+}
+@media(max-width:700px){.bnav{display:grid;}}
+.bn{
+  display:flex;flex-direction:column;align-items:center;
+  padding:8px 0 3px;cursor:pointer;font-size:9px;letter-spacing:0.03em;
+  color:var(--t3);transition:color 0.12s;
+  -webkit-user-select:none;user-select:none;
+}
+.bn.active{color:var(--teal);}
+.bn-icon{font-size:18px;margin-bottom:2px;line-height:1;}
+
+/* ───── BOTTOM SHEET (mobile) ───── */
+.overlay{position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.6);opacity:0;pointer-events:none;transition:opacity 0.25s;}
+.overlay.open{opacity:1;pointer-events:all;}
+.sheet{
+  position:fixed;bottom:0;left:0;right:0;z-index:201;
+  background:var(--navy2);border-radius:20px 20px 0 0;
+  border-top:1px solid var(--bdr2);max-height:82vh;overflow-y:auto;
+  transform:translateY(100%);transition:transform 0.3s cubic-bezier(0.32,0.72,0,1);
+  padding-bottom:calc(24px + var(--sb));
+}
+.sheet.open{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--bdr2);border-radius:99px;margin:12px auto 0;}
+.sheet-title{font-size:12px;font-weight:500;color:var(--t2);text-transform:uppercase;letter-spacing:0.09em;padding:14px 20px 6px;font-family:var(--fm);}
+.sg{font-size:10px;color:var(--teal);text-transform:uppercase;letter-spacing:0.1em;padding:10px 20px 4px;font-family:var(--fm);}
+.si{display:flex;align-items:center;justify-content:space-between;padding:13px 20px;cursor:pointer;border-top:1px solid var(--bdr);transition:background 0.1s;}
+.si:active{background:var(--navy3);}
+.si.active{background:rgba(28,191,170,0.08);}
+.si-name{font-size:15px;font-weight:500;color:var(--text);}
+.si-sub{font-size:12px;color:var(--t2);margin-top:2px;}
+.si-chk{color:var(--teal);font-size:17px;opacity:0;}
+.si.active .si-chk{opacity:1;}
+
+/* ───── FOOTER ───── */
+.site-footer{border-top:1px solid var(--bdr);padding:18px 0 8px;font-size:11px;color:var(--t3);line-height:1.8;margin-top:24px;}
+
+/* ───── LOADING ───── */
+.loading{text-align:center;padding:52px 20px;font-family:var(--fm);font-size:11px;letter-spacing:0.1em;color:var(--t3);text-transform:uppercase;animation:blink 1.5s infinite;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.fade-in{animation:fadeUp 0.3s ease forwards;}
+
+/* mobile padding helpers */
+@media(max-width:700px){
+  .panel{padding:0;}
+  .sec-head{padding:18px 16px 8px;}
+  .verdict-block{margin:10px 16px 12px;}
+  .wt-banner{margin:0 16px 12px;}
+  .zone-note{margin:0 16px 12px;}
+  .sp-list{padding:0 16px;}
+  .tide-5day{padding:0 16px;}
+  .zones-grid{padding:0 16px;}
+  .site-footer{padding:16px 16px 8px;}
+}
+</style>
+<meta name="google-site-verification" content="7LkAJrfcr2x4O1aqr4aKJYVjp75VwxWv9Kp9DvninRk" />
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6197205248872945" crossorigin="anonymous"></script>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">SHORE<span>REPORT</span></div>
+  <div class="live-badge"><span class="live-dot"></span>Live</div>
+  <div class="topbar-region" id="deskRegionBtn" onclick="openSheet()">
+    <div>
+      <div class="tr-name" id="deskRegionName">Point Pleasant</div>
+      <div class="tr-sub" id="deskRegionSub">Manasquan Inlet · Central NJ</div>
+    </div>
+    <span class="tr-chev">⌄</span>
+  </div>
+  <div class="desk-tabs" id="deskTabs">
+    <button class="desk-tab active" data-panel="conditions" onclick="switchPanel('conditions')">Conditions</button>
+    <button class="desk-tab" data-panel="species" onclick="switchPanel('species')">Species</button>
+    <button class="desk-tab" data-panel="tides" onclick="switchPanel('tides')">Tides</button>
+    <button class="desk-tab" data-panel="zones" onclick="switchPanel('zones')">Zones</button>
+    <button class="desk-tab" data-panel="ocean" onclick="switchPanel('ocean')">Ocean</button>
+  </div>
+</div>
+
+<div class="page-wrap">
+
+  <!-- MOBILE REGION TRIGGER -->
+  <div class="mob-region-trigger" id="mobRegionBtn" onclick="openSheet()">
+    <div>
+      <div class="mrt-eye">Fishing Zone</div>
+      <div class="mrt-name" id="mobRegionName">Point Pleasant</div>
+      <div class="mrt-sub" id="mobRegionSub">Manasquan Inlet</div>
+    </div>
+    <span style="font-size:20px;color:var(--t3);">⌄</span>
+  </div>
+
+  <!-- AD BANNER -->
+  <div class="ad-top"><!-- Google AdSense 728×90 leaderboard / 320×50 mobile banner --></div>
+
+  <!-- STATIC SEO CONTENT — visible to Google crawler, hidden once JS loads -->
+  <div id="staticContent" style="padding:0 16px;max-width:900px;margin:0 auto;">
+    <div style="margin:16px 0;padding:16px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:12px;">
+      <h1 style="font-size:18px;font-weight:500;color:#E4EBF0;margin-bottom:8px;">NJ Fishing Conditions — Live Marine Forecast</h1>
+      <p style="font-size:13px;color:#8BA3B4;line-height:1.7;margin-bottom:12px;">Shore Report provides real-time fishing conditions for New Jersey's coastal zones — from Keyport in Raritan Bay to Cape May Inlet and the offshore canyons. Select your zone to get live wind speed, wave height, sea surface temperature, barometric pressure, moon phase and NOAA tide predictions, plus a species-specific Go/No-Go score for 14 NJ fish species.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;">
+        <div style="font-size:12px;color:#8BA3B4;"><strong style="color:#1CBFAA;">Northern NJ:</strong> Keyport, Sandy Hook, Highlands</div>
+        <div style="font-size:12px;color:#8BA3B4;"><strong style="color:#1CBFAA;">Central NJ:</strong> Belmar, Point Pleasant, Seaside Heights</div>
+        <div style="font-size:12px;color:#8BA3B4;"><strong style="color:#1CBFAA;">Southern NJ:</strong> Barnegat Inlet, Tuckerton, Atlantic City</div>
+        <div style="font-size:12px;color:#8BA3B4;"><strong style="color:#1CBFAA;">Cape NJ:</strong> Wildwood, Cape May, Delaware Bay</div>
+        <div style="font-size:12px;color:#8BA3B4;"><strong style="color:#1CBFAA;">Canyons:</strong> Hudson, Baltimore, Lindenkohl, Wilmington</div>
+        <div style="font-size:12px;color:#8BA3B4;"><strong style="color:#1CBFAA;">Species:</strong> Fluke, Stripers, Tuna, Tautog, Sea Bass and more</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTENT -->
+  <div id="mainContent">
+    <div class="loading">Reading the water...</div>
+  </div>
+
+  <!-- AD MID -->
+  <div class="ad-mid" id="adMid" style="display:none;"></div>
+
+  <!-- FOOTER -->
+  <div class="site-footer" id="siteFooter">
+    Weather & marine data: <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> (free, no API key required).
+    Tide times are estimated — always verify with <a href="https://tidesandcurrents.noaa.gov" target="_blank">NOAA Tides & Currents</a> before heading out.
+    Shore Report is for informational use only. Always check US Coast Guard advisories before going offshore.
+  </div>
+
+</div><!-- /page-wrap -->
+
+<!-- BOTTOM NAV (mobile) -->
+<div class="bnav" id="bnav">
+  <div class="bn active" data-panel="conditions" onclick="switchPanel('conditions')"><span class="bn-icon">📊</span>Conditions</div>
+  <div class="bn" data-panel="species" onclick="switchPanel('species')"><span class="bn-icon">🎣</span>Species</div>
+  <div class="bn" data-panel="tides" onclick="switchPanel('tides')"><span class="bn-icon">🌊</span>Tides</div>
+  <div class="bn" data-panel="zones" onclick="switchPanel('zones')"><span class="bn-icon">📍</span>Zones</div>
+  <div class="bn" data-panel="ocean" onclick="switchPanel('ocean')"><span class="bn-icon">🌡️</span>Ocean</div>
+</div>
+
+<!-- BOTTOM SHEET -->
+<div class="overlay" id="overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="regionSheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-title">Select Your Zone</div>
+  <div id="sheetBody"></div>
+</div>
+
+<script>
+const REGIONS={
+  'Northern NJ — Bay & Sandy Hook':[
+    {id:'keyport',name:'Keyport',sub:'Raritan Bay',tid:'8530528',lat:40.437,lon:-74.200,notes:'Protected Raritan Bay. Excellent fluke drifting, weakfish and bluefish. Great for smaller boats — relatively calm compared to the open coast. Bay can get choppy with persistent NE winds. Limited offshore access but excellent inshore fishing.'},
+    {id:'sandy-hook',name:'Sandy Hook',sub:'Outer Hook / Channel',tid:'8531680',lat:40.465,lon:-74.005,notes:'Gateway to the open Atlantic. Sandy Hook Channel creates productive rips for stripers and blues. Party boats run offshore canyons. Watch for dangerous wind-against-tide conditions at the channel mouth — conditions can deteriorate fast.'},
+    {id:'highlands',name:'Highlands',sub:'Sandy Hook Bay',tid:'8531680',lat:40.398,lon:-74.000,notes:'Sandy Hook Bay and the Shrewsbury Rocks. Rock piles create strong rips stacked with stripers. Major party boat departure point for offshore trips. Monmouth Inlet provides back bay flounder access.'},
+  ],
+  'Central NJ — Coast & Inlet':[
+    {id:'belmar',name:'Belmar',sub:'Shark River Inlet',tid:'8531673',lat:40.178,lon:-74.020,notes:'Active party boat fleet out of Shark River Inlet. Nearshore reefs are excellent for sea bass and tautog year-round. Easterly swells build fast on the shoals — a calm morning forecast can deteriorate quickly by mid-afternoon.'},
+    {id:'pt-pleasant',name:'Point Pleasant',sub:'Manasquan Inlet',tid:'8532279',lat:40.082,lon:-74.042,notes:'The primary offshore departure point for central NJ. Manasquan Inlet has strong outgoing tidal current — plan your departure time around the tides. 17–20 miles to nearshore wrecks; 70+ miles to the Hudson Canyon for mahi, tuna and swordfish.'},
+    {id:'seaside',name:'Seaside Heights',sub:'Barnegat Shoals',tid:'8533433',lat:39.943,lon:-74.075,notes:'Open coast with Barnegat Shoals creating confused seas in NE wind. Excellent surf fishing for stripers and blues in the wash. Shoal area requires local knowledge to navigate safely — not a beginner launch.'},
+  ],
+  'Southern NJ — Back Bays & Nearshore':[
+    {id:'barnegat',name:'Barnegat Inlet',sub:'LBI / Barnegat Bay',tid:'8533433',lat:39.756,lon:-74.107,notes:'One of NJ\'s premier inshore fluke fisheries. Barnegat Bay channels are prime summer flounder drift water. The inlet can be treacherous in N/NE wind on an outgoing tide — experienced locals know to wait it out.'},
+    {id:'tuckerton',name:'Tuckerton',sub:'Little Egg Harbor',tid:'8534720',lat:39.597,lon:-74.340,notes:'Little Egg Harbor and the Mullica River drainage — a hidden gem. Exceptional back bay fluke, weakfish and drum. Shallow bay is very wind sensitive. Little Egg Inlet for nearshore runs. Small-boat friendly in calm conditions.'},
+    {id:'atlantic-city',name:'Atlantic City',sub:'Absecon Inlet',tid:'8534720',lat:39.364,lon:-74.420,notes:'Large charter fleet from Gardner\'s Basin. Full Atlantic exposure — monitor sea state carefully. Excellent nearshore tilefish and wreck fishing. 60+ miles to the canyons. Strong rip currents around the Absecon Inlet jetties.'},
+  ],
+  'Cape NJ — Cape May & Delaware Bay':[
+    {id:'wildwood',name:'Wildwood',sub:'Hereford Inlet',tid:'8536110',lat:39.006,lon:-74.820,notes:'Hereford Inlet and the Five Mile Beach back bays. Excellent summer flounder in the bay channels. Good surf fishing for blues and stripers on the ocean front. Less crowded than Cape May. Great crabbing in back channels.'},
+    {id:'cape-may',name:'Cape May',sub:'Cape May Inlet',tid:'8536110',lat:38.935,lon:-74.906,notes:'The premier NJ offshore departure point. Cape May Rip at the tip is world-class for any species. SW winds in summer create ideal offshore conditions. Mahi, yellowfin and swords July–October. Spring striper runs in Delaware Bay are legendary.'},
+    {id:'delaware-bay',name:'Delaware Bay',sub:'Bay Mouth & Rip',tid:'8537121',lat:38.970,lon:-75.100,notes:'World-class spring weakfish and striper fishery. Bay chop can be severe with SW wind against outgoing tide. Shallow bar off Cape May Point requires care at low tide. Excellent crabbing and flounder in back bay channels.'},
+  ],
+  'NJ & Mid-Atlantic Canyons':[
+    {id:'hudson-canyon',name:'Hudson Canyon',sub:'~120 mi offshore',lat:38.700,lon:-72.800,canyon:true,runMiles:110,notes:'The premier NJ offshore destination — a massive underwater valley cutting deep into the Atlantic. Canyon walls concentrate baitfish and attract yellowfin tuna, bluefin, mahi, wahoo, swordfish and white marlin. The temperature break where warm Gulf Stream meets cold shelf water is the key — always check SST charts before leaving the dock. A 90–120 mile run from Manasquan or Point Pleasant. Wind and sea state are absolutely critical at this distance: even 15 mph wind builds dangerous seas on a 4-hour run home in the dark. Never attempt in questionable conditions.'},
+    {id:'baltimore-canyon',name:'Baltimore Canyon',sub:'~90 mi offshore',lat:38.150,lon:-73.650,canyon:true,runMiles:90,notes:'Slightly south of Hudson Canyon and a shorter run from Cape May and Atlantic City. Exceptional wahoo and mahi fishery in summer. The canyon rim at 600–1,200 feet holds swordfish on overnight trips. SST breaks form along the canyon edge in summer — look for the color change on satellite charts before you go. Water drops to 6,000+ feet here. Respect the weather window — you are far from help at this distance.'},
+    {id:'lindenkohl-canyon',name:'Lindenkohl Canyon',sub:'~85 mi offshore',lat:38.580,lon:-73.580,canyon:true,runMiles:85,notes:'Sits between Hudson and Baltimore Canyons and is often overlooked — meaning less pressure and productive fishing. Good mahi and yellowfin action when warm water pushes onto the shelf edge. Slightly shorter run from central NJ than Hudson. Check SST charts closely — Lindenkohl produces best when the Gulf Stream edge is holding tight to the canyon rim.'},
+    {id:'wilmington-canyon',name:'Wilmington Canyon',sub:'~115 mi offshore',lat:37.850,lon:-73.900,canyon:true,runMiles:115,notes:'A top destination for boats out of Delaware and Maryland, and a long but worthwhile run from south Jersey. Big bluefin tuna and swordfish territory. The canyon system here is wider and more complex than Hudson. Overnight swordfish trips are popular — deep-dropping on the canyon walls at night. Only attempt in a solid multi-day weather window.'},
+    {id:'poor-mans-canyon',name:"Poor Man's Canyon",sub:'~55 mi offshore',lat:39.200,lon:-73.200,canyon:true,runMiles:55,notes:"A series of bottom features and temperature breaks roughly 50–60 miles offshore from central NJ — much shorter than the true canyons. Not a geological canyon but a productive shelf-edge zone where structure concentrates baitfish. Good mahi and yellowfin when warm water pushes close to the shelf. Popular with boats that can't make the full canyon run. A realistic one-day trip from most NJ inlets in favorable conditions."},
+  ],
+  'Other East Coast Zones':[
+    {id:'montauk',name:'Montauk, NY',sub:'The Point',tid:'8510560',lat:41.060,lon:-71.960,notes:'The eastern tip of Long Island — one of the most storied fishing destinations on the East Coast. Montauk Point creates rips that hold stripers, blues and tuna. Excellent party boat fleet for offshore canyon runs to the Block Canyon. Fall striper migration is legendary here.'},
+    {id:'block-island',name:'Block Island, RI',sub:'Sound & Offshore',lat:41.170,lon:-71.560,notes:'Block Island Sound is world-class for striped bass and bluefin tuna. The Southwest Ledge and North Rip are prime structure. Ferry and private boat access. The canyons are a shorter run from here than from most NJ ports.'},
+    {id:'cape-cod',name:'Cape Cod, MA',sub:'Chatham & South Shore',lat:41.680,lon:-69.960,notes:'Chatham and Monomoy Island create extraordinary current rips for stripers, blues and false albacore. The backside of the Cape faces open Atlantic — conditions can be extreme. Great white shark presence near seal colonies — use caution inshore.'},
+    {id:'chesapeake',name:'Chesapeake Bay',sub:'Bay Mouth, VA/MD',tid:'8638863',lat:37.000,lon:-76.000,notes:'The Chesapeake Bay mouth holds world-class cobia, red drum and striped bass. The Chesapeake Light Tower area is a prime offshore starting point. Bay chop with SW wind can be very rough — a wide shallow bay that builds seas fast.'},
+    {id:'ob-nc',name:'Outer Banks, NC',sub:'Hatteras & Oregon Inlet',tid:'8654467',lat:35.560,lon:-75.460,notes:'Oregon Inlet and Cape Hatteras are among the finest offshore fishing destinations on the entire East Coast. The warm Gulf Stream is closer here — often just 20–30 miles offshore. Year-round offshore season for dolphin, wahoo, yellowfin and blue marlin. Diamond Shoals requires caution.'},
+    {id:'myrtle-beach',name:'Myrtle Beach, SC',sub:'Grand Strand',tid:'8661070',lat:33.700,lon:-78.880,notes:'Year-round warm water extends the fishing season significantly. Nearshore king mackerel and cobia are the main targets. The Gulf Stream runs closer here — offshore trips for wahoo and dolphin are a shorter run than from the Northeast. Mild winters allow near-year-round bottom fishing.'},
+  ]
+};
+
+const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+const COMPASS=['N','NNE','NE','ENE','E','ESE','SE','SSE','S','SSW','SW','WSW','W','WNW','NW','NNW'];
+function d2c(d){return COMPASS[Math.round(d/22.5)%16];}
+function m2ft(m){return m*3.281;}
+function c2f(c){return c*9/5+32;}
+function avg(a){return a.reduce((x,y)=>x+y,0)/a.length;}
+function slc(arr,i){return arr.slice(i*24,(i+1)*24);}
+function pillTxt(p){return{pgo:'Favorable',pwr:'Moderate',pno:'Rough',pnu:'Stable'}[p]||'—';}
+
+let activeRegion=null,forecastData=null,activeDayIdx=0,activePanel='conditions';
+
+// ── SPECIES ──
+const SPECIES=[
+  {id:'seabass',name:'Black Sea Bass',sub:'Reef & Wreck',emoji:'🐡',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>20){s-=22;tips.push('Too windy for comfortable reef fishing — drift speed will be too fast to work structure effectively.');}
+      else if(w>14){s-=10;tips.push('Moderate wind — use a heavier jig to stay in contact with the bottom on the drift.');}
+      if(m2ft(wv)>4){s-=20;tips.push('Rough seas make bottom fishing inconsistent.');}
+      if(sst<52){s-=25;tips.push(`Water at ${sst.toFixed(1)}°F — sea bass are sluggish and deep. Slow your presentation way down.`);}
+      else if(sst>72){s-=15;tips.push(`Water at ${sst.toFixed(1)}°F is warm — sea bass push to deeper water in summer heat. Fish structure in 60–100 ft.`);}
+      else{tips.push(`${sst.toFixed(1)}°F water is great for sea bass. Work the reef edges and wreck relief with squid or cut bait.`);}
+      const tr=p-pp;
+      if(tr>1){tips.push('Rising pressure often improves sea bass feeding activity — good day to be on the reef.');}
+      else if(tr<-2){s-=10;tips.push('Falling pressure can slow the bite.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Best under 15 mph',p:w<15?'pgo':w<20?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Best under 3 ft',p:m2ft(wv)<3?'pgo':m2ft(wv)<5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'55–68°F prime',p:sst>=55&&sst<=68?'pgo':sst>=50&&sst<74?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable or rising',p:(p-pp)>0?'pgo':(p-pp)>-1.5?'pnu':'pwr'},
+        ]};
+    }
+  },
+  {id:'bluefish',name:'Bluefish',sub:'Blues · Boat & Surf',emoji:'🦈',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>25){s-=30;tips.push('Too rough even for bluefish — dangerous sea state.');}
+      else if(w>18){s-=8;tips.push('Bluefish handle chop well. Concentrate on inlet rips and points where current creates feeding opportunities.');}
+      if(sst<52){s-=25;tips.push(`Water at ${sst.toFixed(1)}°F — bluefish have not pushed inshore yet. They follow bunker schools from offshore.`);}
+      else if(sst>=58&&sst<=74){tips.push(`${sst.toFixed(1)}°F water is prime bluefish temperature. Look for bird activity over breaking fish and bunker schools.`);}
+      else if(sst>78){s-=15;tips.push(`${sst.toFixed(1)}°F warm water — bluefish may be scattered. Fish early morning and evening when surface temps drop.`);}
+      else{tips.push(`Water at ${sst.toFixed(1)}°F — bluefish are on the move. Check inlets and nearshore rips.`);}
+      const tr=p-pp;
+      if(tr<-2){s+=8;tips.push('Pre-front falling pressure can trigger savage bluefish blitzes — one of the best times to target them.');}
+      else if(tr>1){tips.push('Post-front rising pressure — bluefish are active and aggressive. Hit the rips and inlets.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Tolerates up to 22 mph',p:w<18?'pgo':w<25?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Handles up to 5 ft',p:m2ft(wv)<3?'pgo':m2ft(wv)<5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'58–74°F prime',p:sst>=58&&sst<=74?'pgo':sst>=52&&sst<78?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Pre-front = blitz',p:(p-pp)<-1.5?'pgo':(p-pp)>-0.5?'pnu':'pwr'},
+        ]};
+    }
+  },
+  {id:'cobia',name:'Cobia',sub:'Ling · Nearshore Summer',emoji:'🟤',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>18){s-=28;tips.push('Cobia fishing is a sight fishing game — you need calm water to spot fish sunning near the surface or following rays.');}
+      else if(w>12){s-=12;tips.push('Light chop reduces your ability to spot cobia on the surface. Slow down and scan carefully.');}
+      if(m2ft(wv)>3.5){s-=25;tips.push('Too much sea state to spot cobia. Calm conditions are essential for sight fishing.');}
+      if(sst<68){s-=35;tips.push(`Water at ${sst.toFixed(1)}°F — too cold for NJ cobia. They push north from the Chesapeake when water hits 68–70°F, typically July–September.`);}
+      else if(sst>=70){tips.push(`${sst.toFixed(1)}°F water — cobia season is on. Look for fish sunning near the surface, following cownose rays, or cruising inlet mouths.`);}
+      else{tips.push(`Water at ${sst.toFixed(1)}°F — cobia may be starting to push north. Check reports from Cape May and Atlantic City for first sightings.`);}
+      const tr=p-pp;
+      if(tr<-1.5){s-=15;tips.push('Falling pressure — cobia go deep and stop surface cruising. Better action after the system passes.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Calm: under 12 mph',p:w<12?'pgo':w<18?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Under 2 ft ideal',p:m2ft(wv)<2?'pgo':m2ft(wv)<3.5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'70°F+ prime',p:sst>=70?'pgo':sst>=68?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable or rising',p:(p-pp)>-0.5?'pgo':(p-pp)>-1.5?'pnu':'pno'},
+        ]};
+    }
+  },
+  {id:'false-albacore',name:'False Albacore',sub:'Little Tunny · Fall Inshore',emoji:'⚡',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>18){s-=30;tips.push('False albacore are a visual game — you need to see breaking fish. Too much chop and you\'ll miss them entirely.');}
+      else if(w>12){s-=12;tips.push('Moderate wind limits visibility for spotting breaking fish. Use polarized glasses and keep the sun at your back.');}
+      if(m2ft(wv)>3){s-=25;tips.push('Rough conditions make it nearly impossible to spot the surface busting action that defines albie fishing.');}
+      if(sst<60){s-=35;tips.push(`Water at ${sst.toFixed(1)}°F — albies haven't pushed in yet. They follow bait schools in the 62–70°F fall water.`);}
+      else if(sst>72){s-=15;tips.push(`Water at ${sst.toFixed(1)}°F is still warm — albies will move through as water cools into fall. Peak is typically September–October.`);}
+      else{tips.push(`${sst.toFixed(1)}°F water — prime albie conditions. Watch for terns diving and fast surface disturbances along rips and points.`);}
+      const tr=p-pp;
+      if(tr<-1.5){s-=15;tips.push('Falling pressure often pushes albies deep — they stop busting and become almost impossible to catch.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Calm: under 12 mph',p:w<12?'pgo':w<18?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Under 2 ft ideal',p:m2ft(wv)<2?'pgo':m2ft(wv)<3.5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'62–70°F prime (fall)',p:sst>=62&&sst<=70?'pgo':sst>=58&&sst<74?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable — very sensitive',p:(p-pp)>-0.5?'pgo':(p-pp)>-1.5?'pnu':'pno'},
+        ]};
+    }
+  },
+  {id:'fluke',name:'Fluke',sub:'Summer Flounder',emoji:'🐟',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>18){s-=25;tips.push('Fluke prefer calm drifts — above 18 mph, maintaining proper drift speed becomes very difficult.');}
+      else if(w>12){s-=10;tips.push('Manageable conditions but drift control will take work. Use a drift sock if you have one.');}
+      if(m2ft(wv)>4){s-=25;tips.push('Choppy conditions make bottom presentation inconsistent — shorter leaders and heavier bucktails help.');}
+      if(sst<58){s-=30;tips.push(`Water at ${sst.toFixed(1)}°F — too cold. Fluke haven't pushed in from offshore wintering grounds yet.`);}
+      else if(sst>78){s-=15;tips.push(`Water at ${sst.toFixed(1)}°F is warm — fluke likely holding in deeper channels seeking cooler water.`);}
+      else tips.push(`Water temp ${sst.toFixed(1)}°F is right in the fluke sweet spot. Focus on channel edges and structure.`);
+      const tr=p-pp;
+      if(tr<-1.5){s-=10;tips.push('Falling pressure can slow the bite — try deeper water and slower drifts.');}
+      else if(tr>0) tips.push('Rising or stable pressure — fluke tend to feed more aggressively. Good day to be on the water.');
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Best under 12 mph',p:w<12?'pgo':w<18?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Best under 3 ft',p:m2ft(wv)<3?'pgo':m2ft(wv)<5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'60–76°F ideal',p:sst>=60&&sst<=76?'pgo':sst>=55?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable or rising',p:(p-pp)>0?'pgo':(p-pp)>-1?'pnu':'pwr'},
+        ]};
+    }
+  },
+  {id:'winter-flounder',name:'Flounder - Winter',sub:'Blackback · Back Bay & Nearshore',emoji:'🐟',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>18){s-=25;tips.push('Winter flounder like calm drifts on the bottom — above 18 mph, maintaining slow presentation becomes very difficult.');}
+      else if(w>12){s-=10;tips.push('Manageable conditions. Keep drifts slow and stay tight to the bottom in the back bay channels.');}
+      if(m2ft(wv)>3){s-=25;tips.push('Rough seas make bottom presentation inconsistent for winter flounder.');}
+      if(sst>56){s-=40;tips.push(`Water at ${sst.toFixed(1)}°F is too warm — winter flounder go deep and stop feeding once water warms above 56°F. Season is over until fall.`);}
+      else if(sst>=44&&sst<=54){tips.push(`${sst.toFixed(1)}°F is prime winter flounder temperature. Fish the mud bottom channels and back bay flats with bloodworms or sandworms.`);}
+      else if(sst>=38&&sst<44){tips.push(`${sst.toFixed(1)}°F — cold but winter flounder are present. Slow your presentation way down and use a single hook rig with bloodworm tipped with corn.`);}
+      else if(sst<38){s-=20;tips.push(`Water at ${sst.toFixed(1)}°F is very cold — winter flounder are inactive. Wait for water to reach 38°F+ before targeting them.`);}
+      const tr=p-pp;
+      if(tr<-1.5){s-=15;tips.push('Falling pressure slows the winter flounder bite. Fish just before a front for the best action.');}
+      else if(tr>0.5){tips.push('Rising stable pressure is ideal for winter flounder. Incoming tide over mud bottom is the prime setup.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Best under 12 mph',p:w<12?'pgo':w<18?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Best under 2 ft',p:m2ft(wv)<2?'pgo':m2ft(wv)<3?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'44–54°F prime',p:sst>=44&&sst<=54?'pgo':sst>=38&&sst<58?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable or rising',p:(p-pp)>0?'pgo':(p-pp)>-1?'pnu':'pwr'},
+        ]};
+    }
+  },
+  {id:'mahi',name:'Mahi-Mahi',sub:'Dolphin · Canyon & Shelf Edge',emoji:'🟢',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>18){s-=40;tips.push(`${Math.round(w)} mph wind — canyon or shelf run is too risky. Mahi require calm conditions for the distance involved.`);}
+      else if(w>13){s-=20;tips.push('Borderline conditions for a mahi run. Confirm extended forecast before committing to a 40–70 mile trip.');}
+      if(m2ft(wv)>5){s-=35;tips.push('Rough seas at distance. Mahi fishing requires calm enough conditions to watch for weed lines and debris.');}
+      if(sst<68){s-=35;tips.push(`Water at ${sst.toFixed(1)}°F is too cold for mahi. They need 68°F+ — wait for warm Gulf Stream water to push onto the shelf.`);}
+      else if(sst>=72){tips.push(`${sst.toFixed(1)}°F warm water is prime mahi territory. Look for weed lines, floating debris, temperature breaks and color changes.`);}
+      else{tips.push(`${sst.toFixed(1)}°F water is acceptable for mahi — but look for the 70°F+ water edge for best action.`);}
+      const tr=p-pp;
+      if(tr<-1.5){s-=20;tips.push('Falling pressure — delay offshore run. Fronts scatter mahi schools.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Critical: under 15 mph',p:w<12?'pgo':w<18?'pwr':'pno'},
+          {l:'Seas',v:`${m2ft(wv).toFixed(1)} ft`,i:'Under 4 ft',p:m2ft(wv)<2?'pgo':m2ft(wv)<5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'70°F+ prime',p:sst>=70?'pgo':sst>=68?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable, no fronts',p:(p-pp)>-1?'pgo':(p-pp)>-2?'pwr':'pno'},
+        ]};
+    }
+  },
+  {id:'striper',name:'Striped Bass',sub:'Boat Fishing — Inshore & Nearshore',emoji:'🎣',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>25){s-=30;tips.push('Too rough for safe striper fishing. Seas will be dangerous on the open coast.');}
+      else if(w>18){s-=12;tips.push('Stripers handle chop well but boat control will be demanding. Fish protected inlets and channels.');}
+      if(sst<46){s-=25;tips.push(`Water at ${sst.toFixed(1)}°F — stripers are present but very sluggish. Fish deep and slow with large profile baits.`);}
+      else if(sst>72){s-=20;tips.push(`Water at ${sst.toFixed(1)}°F — stripers pushed offshore to cooler depths in summer heat. Target pre-dawn and night tides.`);}
+      else tips.push(`${sst.toFixed(1)}°F water is prime striper temp. Hit the rips, rock piles and channel edges on the moving tide.`);
+      const tr=p-pp;
+      if(tr<-2){s-=15;tips.push('Rapidly falling pressure — fish hard now. The bite can go absolutely crazy before a front moves through.');}
+      else if(tr>1) tips.push('Post-front rising pressure can trigger explosive striper blitzes along rock structure and inlet rips.');
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Handles up to 20 mph',p:w<15?'pgo':w<22?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Handles up to 5 ft',p:m2ft(wv)<2?'pgo':m2ft(wv)<5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'48–68°F prime',p:sst>=48&&sst<=68?'pgo':sst>=42&&sst<75?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable or rising',p:(p-pp)>-0.5?'pgo':(p-pp)>-2?'pwr':'pno'},
+        ]};
+    }
+  },
+  {id:'striper-surf',name:'Striped Bass - Surf',sub:'Surf & Beach Fishing',emoji:'🏖️',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>30){s-=30;tips.push('Too dangerous for beach fishing — dangerous surf and standing waves on the bars.');}
+      else if(w>22){s-=10;tips.push('Heavy surf — experienced surf anglers can work this but conditions are rough.');}
+      else if(w>=10&&w<=20){s+=5;tips.push(`${Math.round(w)} mph onshore wind is ideal for surf fishing — creates the churned water and wash that stripers hunt.`);}
+      else if(w<8){s-=8;tips.push('Very calm — less wash and white water means stripers may not be in the suds. Try at night or on the tide changes.');}
+      if(m2ft(wv)>=2&&m2ft(wv)<=5){s+=5;tips.push('Moderate surf is prime striper territory — fish where the wash meets the trough.');}
+      else if(m2ft(wv)>7){s-=25;tips.push('Dangerous surf — stay off the beach.');}
+      if(sst<46){s-=20;tips.push(`Water at ${sst.toFixed(1)}°F — stripers present but very cold and sluggish. Fish large slow presentations at dawn.`);}
+      else if(sst>72){s-=20;tips.push(`${sst.toFixed(1)}°F water pushes stripers off the beach in daytime. Fish the first and last hour of light only.`);}
+      else{tips.push(`${sst.toFixed(1)}°F water — stripers are active in the surf. Fish the north end of beaches and points where current concentrates bait.`);}
+      const tr=p-pp;
+      if(tr<-2){s+=10;tips.push('Pre-front conditions — falling pressure triggers some of the best surf striper blitzes of the year.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'10–20 mph onshore ideal',p:w>=10&&w<=20?'pgo':w<25?'pwr':'pno'},
+          {l:'Surf Height',v:`${m2ft(wv).toFixed(1)} ft`,i:'2–5 ft ideal',p:m2ft(wv)>=2&&m2ft(wv)<=5?'pgo':m2ft(wv)<7?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'48–68°F prime',p:sst>=48&&sst<=68?'pgo':sst>=44&&sst<74?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Pre-front = prime',p:(p-pp)<-1.5?'pgo':(p-pp)>-0.5?'pnu':'pwr'},
+        ]};
+    }
+  },
+  {id:'tautog',name:'Tautog',sub:'Blackfish · Wreck & Structure',emoji:'🪨',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>22){s-=25;tips.push('Too windy to hold anchor on structure — tautog fishing requires staying put on the wreck.');}
+      else if(w>16){s-=10;tips.push('Manageable wind but anchor drift will make wreck fishing tough. Use a heavier anchor.');}
+      if(m2ft(wv)>4){s-=20;tips.push('Rough seas make wreck anchoring difficult and uncomfortable.');}
+      if(sst<44){s-=30;tips.push(`Water at ${sst.toFixed(1)}°F — too cold even for tautog. They've moved deep and are barely feeding.`);}
+      else if(sst>65){s-=25;tips.push(`Water at ${sst.toFixed(1)}°F is too warm — tautog have moved to deeper cooler structure for summer. Come back in fall.`);}
+      else if(sst>=48&&sst<=60){tips.push(`${sst.toFixed(1)}°F water is prime tautog temperature. Hit the wrecks and rock piles with green crabs.`);}
+      else{tips.push(`${sst.toFixed(1)}°F water is acceptable for tautog — fish slow and tight to structure.`);}
+      const tr=p-pp;
+      if(tr<-2){s-=15;tips.push('Falling pressure — tautog bite often slows before a front. Try right after pressure stabilizes.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Best under 16 mph',p:w<16?'pgo':w<22?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Best under 3 ft',p:m2ft(wv)<3?'pgo':m2ft(wv)<5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'48–60°F prime',p:sst>=48&&sst<=60?'pgo':sst>=44&&sst<65?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable or rising',p:(p-pp)>-0.5?'pgo':(p-pp)>-2?'pwr':'pno'},
+        ]};
+    }
+  },
+  {id:'inshore-bluefin',name:'Tuna - Inshore',sub:'School Bluefin · 15–30 mi',emoji:'🔵',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>20){s-=35;tips.push(`${Math.round(w)} mph wind — too rough for the 15–30 mile run to find bluefin schools. Dangerous chop on the shelf.`);}
+      else if(w>15){s-=18;tips.push('Borderline conditions for Tuna - Inshore. Watch for afternoon wind build — schools are hard to track in chop.');}
+      if(m2ft(wv)>5){s-=30;tips.push(`${m2ft(wv).toFixed(1)} ft seas will make high-speed trolling to find schools impossible.`);}
+      else if(m2ft(wv)>3){s-=15;tips.push('Moderate seas — keep boat speed up to cover ground and find breaking fish.');}
+      if(sst<56){s-=30;tips.push(`Water at ${sst.toFixed(1)}°F — school bluefin have not pushed close yet. They follow the bait and temperature breaks.`);}
+      else if(sst>=60&&sst<=68){tips.push(`${sst.toFixed(1)}°F water is prime for school bluefin close to shore. Look for birds and breaking fish on temp breaks.`);}
+      else{tips.push(`Water at ${sst.toFixed(1)}°F — find the temperature break where cold shelf water meets warmer inshore water. That is where bluefin stack up.`);}
+      const tr=p-pp;
+      if(tr<-2){s-=20;tips.push('Falling pressure — bluefin go deep and stop busting on the surface. Better days ahead after the front passes.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Under 18 mph for run',p:w<14?'pgo':w<20?'pwr':'pno'},
+          {l:'Seas',v:`${m2ft(wv).toFixed(1)} ft`,i:'Under 4 ft',p:m2ft(wv)<2.5?'pgo':m2ft(wv)<5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'58–68°F on temp break',p:sst>=58&&sst<=68?'pgo':sst>=54&&sst<72?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable — avoid fronts',p:(p-pp)>-0.5?'pgo':(p-pp)>-2?'pwr':'pno'},
+        ]};
+    }
+  },
+  {id:'tuna',name:'Tuna - Offshore',sub:'Yellowfin · Bluefin · Swordfish',emoji:'🐠',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>18){s-=45;tips.push(`${Math.round(w)} mph wind — a 60–70 mile offshore run to the canyons in these conditions is dangerous. Do not go.`);}
+      else if(w>14){s-=22;tips.push('Borderline wind for offshore. Check the extended marine forecast carefully — afternoon build-up can leave you stuck out there.');}
+      if(m2ft(wv)>6){s-=40;tips.push(`${m2ft(wv).toFixed(1)} ft seas will make the canyon run rough and potentially dangerous. Reconsider your trip.`);}
+      else if(m2ft(wv)>3){s-=18;tips.push(`${m2ft(wv).toFixed(1)} ft seas — manageable but expect a bumpy 2+ hour run to the canyons. Leave early to beat afternoon chop.`);}
+      if(sst<64){s-=30;tips.push(`Water at ${sst.toFixed(1)}°F is too cold for yellowfin. The warm water edge needs to push north — wait for 65°F+ before making the run.`);}
+      else if(sst>=68) tips.push(`${sst.toFixed(1)}°F water temp means warm productive water in the canyons right now. Tuna should be active at the canyon edge.`);
+      else tips.push(`${sst.toFixed(1)}°F is acceptable but 68°F+ will produce more consistent canyon action. Check sea surface temp charts before departure.`);
+      const tr=p-pp;
+      if(tr<-2){s-=20;tips.push('Falling pressure signals an approaching front. Delay your offshore run until pressure stabilizes — do not attempt the canyon run.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Critical: under 15 mph',p:w<12?'pgo':w<16?'pwr':'pno'},
+          {l:'Seas',v:`${m2ft(wv).toFixed(1)} ft`,i:'Under 4 ft for 60 mi run',p:m2ft(wv)<2?'pgo':m2ft(wv)<4?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'65°F+ for yellowfin',p:sst>=68?'pgo':sst>=64?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable, no fronts',p:(p-pp)>-1?'pgo':(p-pp)>-2?'pwr':'pno'},
+        ]};
+    }
+  },
+  {id:'wahoo',name:'Wahoo',sub:'Canyon & Offshore — Fast Water',emoji:'🔴',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>15){s-=50;tips.push(`${Math.round(w)} mph wind — canyon run for wahoo is off. Wahoo are a 70–120 mile offshore target. Do not go in these conditions.`);}
+      else if(w>12){s-=25;tips.push('Marginal conditions for a wahoo run to the canyons. Verify the full 48-hour forecast before committing.');}
+      if(m2ft(wv)>4){s-=40;tips.push('Seas too rough for the canyon run. Wahoo require near-perfect offshore conditions.');}
+      else if(m2ft(wv)>2.5){s-=18;tips.push(`${m2ft(wv).toFixed(1)} ft seas are manageable but the run will be bumpy. Leave before dawn to beat afternoon build.`);}
+      if(sst<70){s-=35;tips.push(`Water at ${sst.toFixed(1)}°F — too cold for wahoo. They need warm Gulf Stream water above 70°F, typically July–October at the NJ canyons.`);}
+      else if(sst>=74){tips.push(`${sst.toFixed(1)}°F water is prime wahoo territory at the canyons. High-speed trolling along the temperature break with rigged ballyhoo or jets.`);}
+      else{tips.push(`${sst.toFixed(1)}°F water — wahoo possible but look for the warmest water at the canyon edge for best action.`);}
+      const tr=p-pp;
+      if(tr<-1.5){s-=25;tips.push('Falling pressure signals an approaching front. Abort canyon run — conditions at 80+ miles deteriorate fast.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Critical: under 13 mph',p:w<10?'pgo':w<15?'pwr':'pno'},
+          {l:'Seas',v:`${m2ft(wv).toFixed(1)} ft`,i:'Under 3 ft for canyon',p:m2ft(wv)<2?'pgo':m2ft(wv)<4?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'72°F+ at canyon edge',p:sst>=72?'pgo':sst>=68?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable — 48hr window',p:(p-pp)>-1?'pgo':(p-pp)>-2?'pwr':'pno'},
+        ]};
+    }
+  },
+  {id:'weakfish',name:'Weakfish',sub:'Weakies · Back Bay & Inlet',emoji:'🌊',
+    score(w,wv,sst,p,pp){
+      let s=100;const tips=[];
+      if(w>16){s-=28;tips.push('Weakfish prefer calm back bay conditions — above 16 mph the back bays get choppy and fish go off the bite.');}
+      else if(w>10){s-=12;tips.push('Light chop is manageable in the back bay but weakfish prefer dead calm water, especially at night.');}
+      if(m2ft(wv)>3){s-=20;tips.push('Rough seas push weakfish out of their feeding zones.');}
+      if(sst<56){s-=30;tips.push(`Water at ${sst.toFixed(1)}°F — too cold for weakfish. Wait for spring warming above 58°F for the back bay run.`);}
+      else if(sst>76){s-=20;tips.push(`Water at ${sst.toFixed(1)}°F is warm — weakfish feed best at night in summer heat. Fish the incoming tide after sunset.`);}
+      else{tips.push(`${sst.toFixed(1)}°F is prime weakfish water. Hit the back bay channels and grass flats on the incoming tide.`);}
+      const tr=p-pp;
+      if(tr<-1.5){s-=15;tips.push('Falling pressure shuts weakfish down fast — one of the most pressure-sensitive species in NJ.');}
+      else if(tr>0.5){tips.push('Stable rising pressure is ideal for weakfish. Fish the last two hours of incoming tide.');}
+      return{score:Math.min(100,Math.max(0,Math.round(s))),tip:tips[0],
+        metrics:[
+          {l:'Wind',v:`${Math.round(w)} mph`,i:'Best under 10 mph',p:w<10?'pgo':w<16?'pwr':'pno'},
+          {l:'Waves',v:`${m2ft(wv).toFixed(1)} ft`,i:'Best under 2 ft',p:m2ft(wv)<2?'pgo':m2ft(wv)<3.5?'pwr':'pno'},
+          {l:'Water Temp',v:`${sst.toFixed(1)}°F`,i:'60–74°F prime',p:sst>=60&&sst<=74?'pgo':sst>=56&&sst<78?'pwr':'pno'},
+          {l:'Pressure',v:`${Math.round(p)} hPa`,i:'Stable — very sensitive',p:(p-pp)>0?'pgo':(p-pp)>-1?'pnu':'pno'},
+        ]};
+    }
+  }
+];
+function moonPhase(date){
+  const k=new Date(2000,0,6);
+  const ph=((((date-k)/(1000*60*60*24))%29.53)+29.53)%29.53;
+  if(ph<1.85)return{name:'New Moon',sym:'🌑',p:'pgo',tip:'Prime feeding'};
+  if(ph<7.38)return{name:'Waxing Crescent',sym:'🌒',p:'pnu',tip:'Average'};
+  if(ph<9.22)return{name:'First Quarter',sym:'🌓',p:'pgo',tip:'Good bite'};
+  if(ph<14.76)return{name:'Waxing Gibbous',sym:'🌔',p:'pnu',tip:'Average'};
+  if(ph<16.61)return{name:'Full Moon',sym:'🌕',p:'pgo',tip:'Prime feeding'};
+  if(ph<22.15)return{name:'Waning Gibbous',sym:'🌖',p:'pnu',tip:'Average'};
+  if(ph<23.99)return{name:'Last Quarter',sym:'🌗',p:'pgo',tip:'Good bite'};
+  return{name:'Waning Crescent',sym:'🌘',p:'pnu',tip:'Average'};
+}
+
+// ── OCEAN DATA (SST only) ──
+let oceanData = { chlorLoaded:true };
+
+
+
+// ── NOAA tide cache: tidesByDay[0..4] each = array of {time, type, height}
+let tidesByDay = [];
+
+// Local date helpers — avoids UTC/local timezone mismatch
+function localDateStr(offsetDays){
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  // Use local year/month/day, not UTC
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}${m}${day}`;
+}
+
+function localDateLabel(offsetDays){
+  const d = new Date();
+  d.setDate(d.getDate() + offsetDays);
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`; // YYYY-MM-DD for matching NOAA response
+}
+
+function parseTidesIntoDay(predictions, dayOffset){
+  const dateStr = localDateLabel(dayOffset); // YYYY-MM-DD in LOCAL time
+  return predictions
+    .filter(p => p.t.startsWith(dateStr))
+    .map(p => {
+      const timePart = p.t.split(' ')[1]; // HH:MM
+      const [hh, mm] = timePart.split(':').map(Number);
+      const ampm = hh >= 12 ? 'PM' : 'AM';
+      const h12 = hh % 12 === 0 ? 12 : hh % 12;
+      const heightFt = parseFloat(p.v).toFixed(1);
+      return {
+        time: `${h12}:${mm.toString().padStart(2,'0')} ${ampm}`,
+        type: p.type === 'H' ? 'High' : 'Low',
+        height: heightFt
+      };
+    });
+}
+
+async function fetchNoaaTides(stationId){
+  tidesByDay = [];
+  if(!stationId){
+    // Canyon/offshore zones — no tide station
+    for(let i=0;i<5;i++) tidesByDay.push(null);
+    return;
+  }
+  try {
+    // Fetch 6 days to ensure full coverage regardless of local time
+    const beginDate = localDateStr(0);
+    const endDate   = localDateStr(6);
+    const url = `https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=predictions&application=NJShoreReport&begin_date=${beginDate}&end_date=${endDate}&datum=MLLW&station=${stationId}&time_zone=lst_ldt&interval=hilo&units=english&format=json`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if(!data.predictions) throw new Error('No predictions returned');
+    for(let i=0;i<5;i++){
+      const dayTides = parseTidesIntoDay(data.predictions, i);
+      tidesByDay.push(dayTides.length > 0 ? dayTides : []);
+    }
+  } catch(e){
+    console.warn('NOAA tide fetch failed:', e);
+    for(let i=0;i<5;i++) tidesByDay.push(null);
+  }
+}
+
+function renderTideGrid(dayIdx){
+  const tides = tidesByDay[dayIdx];
+  if(!tides || tides.length === 0){
+    return `<div style="grid-column:1/-1;font-size:13px;color:var(--t2);padding:12px 0;">No tide station data for this zone. <a href="https://tidesandcurrents.noaa.gov" target="_blank" style="color:var(--teal);">Check NOAA directly →</a></div>`;
+  }
+  return tides.map(t=>`<div class="tc"><div class="tc-lbl">${t.type}</div><div class="tc-time ${t.type==='High'?'thi':'tlo'}">${t.time}</div><div class="tc-type">${t.height} ft</div></div>`).join('');
+}
+
+function renderTides5Day(){
+  return Array.from({length:5},(_,di)=>{
+    const d = new Date(Date.now()+di*86400000);
+    const tides = tidesByDay[di];
+    const dayLbl = di===0?'Today':DAYS[d.getDay()]+', '+d.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+    let tidesContent;
+    if(!tides){
+      tidesContent = `<div style="font-size:12px;color:var(--t2);padding:8px 0;">No station data</div>`;
+    } else if(tides.length===0){
+      tidesContent = `<div style="font-size:12px;color:var(--t2);padding:8px 0;">Loading...</div>`;
+    } else {
+      tidesContent = `<div class="td-tides">${tides.map(t=>`<div class="td-tide">
+        <div><div class="td-type">${t.type} Tide</div><div style="font-size:11px;color:var(--t3);">${t.height} ft</div></div>
+        <div class="td-time ${t.type==='High'?'thi':'tlo'}">${t.time}</div>
+      </div>`).join('')}</div>`;
+    }
+    return `<div class="td-block"><div class="td-lbl">${dayLbl}</div>${tidesContent}</div>`;
+  }).join('');
+}
+
+function overallScore(w,wv,press,pressP,region){
+  const isCanyon=region&&region.canyon;
+  let s=100;const iss=[];
+  if(isCanyon){
+    if(w>15){s-=50;iss.push("Too windy for canyon run");}else if(w>12){s-=25;iss.push("Marginal wind for canyon");}else if(w>8){s-=10;iss.push("Light wind — watch forecast");}
+    const ft=m2ft(wv);
+    if(ft>5){s-=50;iss.push("Seas too rough for canyon");}else if(ft>3){s-=30;iss.push("Rough seas at distance");}else if(ft>2){s-=12;iss.push("Moderate swell offshore");}
+    const tr=press-(pressP||press);
+    if(tr<-1){s-=25;iss.push("Falling pressure — abort canyon run");}else if(tr>0.5){s+=5;}
+    if(s>=70&&region.runMiles)iss.push("~"+region.runMiles+" mi run — verify 48hr forecast");
+  } else {
+    if(w>28){s-=45;iss.push("Dangerous winds");}else if(w>20){s-=25;iss.push("Strong winds");}else if(w>14){s-=12;iss.push("Moderate winds");}
+    const ft=m2ft(wv);
+    if(ft>8){s-=40;iss.push("Very rough seas");}else if(ft>5){s-=25;iss.push("Rough seas");}else if(ft>3){s-=12;iss.push("Choppy");}
+    const tr=press-(pressP||press);
+    if(press<1000&&tr<-1.5){s-=20;iss.push("Falling pressure");}else if(tr>1.5){s+=5;}
+  }
+  return{score:Math.min(100,Math.max(0,Math.round(s))),issues:iss};
+}
+function sc(s){return s>=68?'cgo':s>=42?'cmy':'cno';}
+function vw(s){return s>=68?'GO FISH':s>=42?'BORDERLINE':'STAY IN';}
+function vbc(s){return s>=68?'vgo':s>=42?'vmy':'vno';}
+function sbc(s){return s>=68?'sgo':s>=42?'smy':'sno';}
+
+// ── SHEET ──
+function buildSheetBody(){
+  let html='';
+  Object.entries(REGIONS).forEach(([group,regions])=>{
+    html+=`<div class="sg">${group}</div>`;
+    regions.forEach(r=>{
+      html+=`<div class="si${activeRegion&&activeRegion.id===r.id?' active':''}" onclick="selectRegion('${r.id}')">
+        <div><div class="si-name">${r.name}</div><div class="si-sub">${r.sub}</div></div>
+        <span class="si-chk">✓</span>
+      </div>`;
+    });
+  });
+  document.getElementById('sheetBody').innerHTML=html;
+}
+function openSheet(){buildSheetBody();document.getElementById('overlay').classList.add('open');document.getElementById('regionSheet').classList.add('open');}
+function closeSheet(){document.getElementById('overlay').classList.remove('open');document.getElementById('regionSheet').classList.remove('open');}
+function selectRegion(id){
+  closeSheet();
+  let found=null;Object.values(REGIONS).flat().forEach(r=>{if(r.id===id)found=r;});
+  if(found)loadRegion(found);
+}
+
+// ── FORECAST STRIP ──
+function renderFcStrip(){
+  if(!forecastData)return;
+  const f=forecastData;
+  document.getElementById('fcStrip').innerHTML=Array.from({length:5},(_,di)=>{
+    const winds=slc(f.weather.hourly.wind_speed_10m,di);
+    const waves=slc(f.marine.hourly.wave_height,di);
+    const press=slc(f.weather.hourly.surface_pressure,di);
+    const aw=avg(winds),awv=avg(waves),mp=press[12]||press[0];
+    const{score}=overallScore(aw,awv,mp,press[0],activeRegion);
+    const d=new Date(Date.now()+di*86400000);
+    return`<div class="fc-card${di===activeDayIdx?' fca':''}" onclick="selectDay(${di})">
+      <div class="fc-day">${di===0?'Today':DAYS[d.getDay()]}</div>
+      <div class="fc-score ${sc(score)}">${score}</div>
+      <div class="fc-wind">${Math.round(aw)} mph</div>
+    </div>`;
+  }).join('');
+}
+
+// ── SPECIES CARDS HTML ──
+
+const FISH_SVG={
+  'fluke':`<svg width="56" height="32" viewBox="0 0 80 44"><ellipse cx="36" cy="26" rx="28" ry="13" fill="#1CBFAA" opacity=".85"/><path d="M64 26Q74 18 78 26Q74 34 64 26Z" fill="#1CBFAA" opacity=".7"/><path d="M14 20Q8 13 6 7Q12 12 18 20Z" fill="#1CBFAA" opacity=".6"/><path d="M14 32Q8 38 6 44Q12 36 18 32Z" fill="#1CBFAA" opacity=".6"/><circle cx="14" cy="22" r="2.5" fill="#07111F"/><circle cx="13.5" cy="21.5" r="1" fill="rgba(255,255,255,.4)"/><path d="M20 16Q32 12 50 14Q60 15 64 18" stroke="rgba(255,255,255,.15)" stroke-width="1" fill="none"/><path d="M20 20Q36 17 56 19" stroke="rgba(255,255,255,.1)" stroke-width=".8" fill="none"/></svg>`,
+  'striper':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M8 22Q20 10 48 12Q66 13 72 22Q66 31 48 32Q20 34 8 22Z" fill="#8BA3B4" opacity=".85"/><path d="M72 22Q78 16 80 22Q78 28 72 22Z" fill="#8BA3B4" opacity=".7"/><path d="M40 12Q44 6 48 10" stroke="#8BA3B4" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M40 32Q44 38 48 34" stroke="#8BA3B4" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="18" cy="21" r="3" fill="#07111F"/><circle cx="17" cy="20" r="1.2" fill="rgba(255,255,255,.4)"/><path d="M24 14Q52 12 68 18" stroke="rgba(18,34,54,.7)" stroke-width="1.2" fill="none"/><path d="M22 17Q50 15 68 21" stroke="rgba(18,34,54,.6)" stroke-width="1.2" fill="none"/><path d="M22 20Q50 18 68 24" stroke="rgba(18,34,54,.6)" stroke-width="1.2" fill="none"/><path d="M22 23Q50 22 66 27" stroke="rgba(18,34,54,.5)" stroke-width="1.2" fill="none"/><path d="M24 26Q50 26 64 30" stroke="rgba(18,34,54,.4)" stroke-width="1.2" fill="none"/></svg>`,
+  'bluefish':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M4 22Q12 11 44 11Q62 11 70 22Q62 33 44 33Q12 32 4 22Z" fill="#3A9BDC" opacity=".85"/><path d="M70 22Q76 14 80 22Q76 30 70 22Z" fill="#3A9BDC" opacity=".7"/><path d="M38 11Q42 4 46 9" stroke="#3A9BDC" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M38 33Q42 40 46 35" stroke="#3A9BDC" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="12" cy="21" r="3" fill="#07111F"/><circle cx="11" cy="20" r="1.2" fill="rgba(255,255,255,.4)"/><path d="M4 21Q6 20 10 20" stroke="rgba(255,255,255,.3)" stroke-width="1" fill="none"/></svg>`,
+  'tuna':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M4 22Q16 8 50 8Q68 8 74 22Q68 36 50 36Q16 36 4 22Z" fill="#185FA5" opacity=".9"/><path d="M74 22Q78 14 82 22Q78 30 74 22Z" fill="#185FA5" opacity=".8"/><path d="M56 8Q62 2 66 8" stroke="#185FA5" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M56 36Q62 42 66 36" stroke="#185FA5" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M44 8Q48 4 50 8" stroke="#185FA5" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M44 36Q48 40 50 36" stroke="#185FA5" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M28 10Q52 8 68 16" stroke="#F0A500" stroke-width="2" fill="none" opacity=".7"/><path d="M30 28Q52 32 68 28" stroke="#F0A500" stroke-width="1.5" fill="none" opacity=".5"/><circle cx="14" cy="21" r="3" fill="#07111F"/><circle cx="13" cy="20" r="1.2" fill="rgba(255,255,255,.4)"/></svg>`,
+  'inshore-bluefin':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M4 22Q16 9 48 9Q66 9 72 22Q66 35 48 35Q16 35 4 22Z" fill="#0C447C" opacity=".9"/><path d="M72 22Q77 14 80 22Q77 30 72 22Z" fill="#0C447C" opacity=".8"/><path d="M54 9Q60 3 64 9" stroke="#0C447C" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M54 35Q60 41 64 35" stroke="#0C447C" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M26 11Q50 9 66 17" stroke="#F0A500" stroke-width="1.8" fill="none" opacity=".6"/><path d="M28 27Q50 31 66 27" stroke="#F0A500" stroke-width="1.3" fill="none" opacity=".4"/><circle cx="14" cy="21" r="3" fill="#07111F"/><circle cx="13" cy="20" r="1.2" fill="rgba(255,255,255,.4)"/></svg>`,
+  'tautog':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M14 22Q22 10 42 9Q58 9 66 22Q58 35 42 35Q22 34 14 22Z" fill="#4D6778" opacity=".9"/><path d="M66 22Q70 16 74 22Q70 28 66 22Z" fill="#4D6778" opacity=".7"/><path d="M36 9Q40 3 46 8" stroke="#4D6778" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M36 35Q40 41 46 36" stroke="#4D6778" stroke-width="4" fill="none" stroke-linecap="round"/><circle cx="22" cy="21" r="3.5" fill="#07111F"/><circle cx="21" cy="20" r="1.4" fill="rgba(255,255,255,.35)"/><path d="M14 17Q18 15 22 14" stroke="rgba(255,255,255,.12)" stroke-width="1.5" fill="none"/></svg>`,
+  'seabass':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M12 22Q22 10 44 10Q60 10 68 22Q60 34 44 34Q22 34 12 22Z" fill="#2C2C2A" opacity=".9"/><path d="M68 22Q73 16 76 22Q73 28 68 22Z" fill="#2C2C2A" opacity=".8"/><path d="M28 10Q36 4 52 8" stroke="#888780" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M28 34Q36 40 52 36" stroke="#2C2C2A" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M30 8 L32 4 L34 8 L36 3 L38 8 L40 4 L42 8 L44 4 L46 8 L48 4 L50 8" stroke="#888780" stroke-width="1.5" fill="none" stroke-linejoin="round"/><circle cx="20" cy="21" r="3" fill="#07111F"/><circle cx="19" cy="20" r="1.2" fill="rgba(255,255,255,.4)"/></svg>`,
+  'weakfish':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M8 22Q18 12 46 12Q64 12 72 22Q64 32 46 32Q18 32 8 22Z" fill="#BA7517" opacity=".8"/><path d="M72 22Q76 15 80 22Q76 29 72 22Z" fill="#BA7517" opacity=".7"/><path d="M44 12Q50 5 54 11" stroke="#BA7517" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M44 32Q50 39 54 33" stroke="#BA7517" stroke-width="2.5" fill="none" stroke-linecap="round"/><circle cx="16" cy="21" r="2.8" fill="#07111F"/><circle cx="15" cy="20" r="1.1" fill="rgba(255,255,255,.4)"/><path d="M22 14Q46 12 64 18" stroke="rgba(255,200,0,.2)" stroke-width="1" fill="none"/><path d="M22 30Q46 32 64 26" stroke="rgba(255,200,0,.15)" stroke-width="1" fill="none"/></svg>`,
+  'mahi':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M6 20Q10 8 20 8Q22 6 26 8Q46 7 66 22Q56 34 36 34Q16 34 6 20Z" fill="#1CBFAA" opacity=".85"/><path d="M66 22Q74 16 78 22Q74 28 66 22Z" fill="#1CBFAA" opacity=".7"/><path d="M20 8Q30 2 50 6" stroke="#1CBFAA" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M36 34Q46 40 56 36" stroke="#1CBFAA" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="13" cy="19" r="3" fill="#07111F"/><circle cx="12" cy="18" r="1.2" fill="rgba(255,255,255,.4)"/><path d="M22 10Q44 8 60 16" stroke="rgba(255,220,0,.35)" stroke-width="1.5" fill="none"/><path d="M26 12Q48 11 62 20" stroke="rgba(0,200,180,.3)" stroke-width="1" fill="none"/></svg>`,
+  'striper-surf':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M8 22Q20 10 48 12Q66 13 72 22Q66 31 48 32Q20 34 8 22Z" fill="#8BA3B4" opacity=".85"/><path d="M72 22Q78 16 80 22Q78 28 72 22Z" fill="#8BA3B4" opacity=".7"/><path d="M40 12Q44 6 48 10" stroke="#8BA3B4" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M40 32Q44 38 48 34" stroke="#8BA3B4" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="18" cy="21" r="3" fill="#07111F"/><circle cx="17" cy="20" r="1.2" fill="rgba(255,255,255,.4)"/><path d="M24 14Q52 12 68 18" stroke="rgba(18,34,54,.7)" stroke-width="1.2" fill="none"/><path d="M22 17Q50 15 68 21" stroke="rgba(18,34,54,.6)" stroke-width="1.2" fill="none"/><path d="M22 20Q50 18 68 24" stroke="rgba(18,34,54,.6)" stroke-width="1.2" fill="none"/><path d="M22 23Q50 22 66 27" stroke="rgba(18,34,54,.5)" stroke-width="1.2" fill="none"/><path d="M24 26Q50 26 64 30" stroke="rgba(18,34,54,.4)" stroke-width="1.2" fill="none"/><path d="M4 28Q12 36 20 34Q14 30 8 32" fill="#3A9BDC" opacity=".3"/></svg>`,
+  'false-albacore':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M6 22Q16 10 44 10Q62 10 70 22Q62 34 44 34Q16 34 6 22Z" fill="#5F5E5A" opacity=".85"/><path d="M70 22Q76 14 80 22Q76 30 70 22Z" fill="#5F5E5A" opacity=".7"/><path d="M52 10Q58 4 62 10" stroke="#5F5E5A" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M52 34Q58 40 62 34" stroke="#5F5E5A" stroke-width="3.5" fill="none" stroke-linecap="round"/><circle cx="14" cy="21" r="3" fill="#07111F"/><circle cx="13" cy="20" r="1.2" fill="rgba(255,255,255,.4)"/><circle cx="38" cy="16" r="1.8" fill="rgba(18,34,54,.5)"/><circle cx="46" cy="14" r="1.4" fill="rgba(18,34,54,.4)"/><circle cx="30" cy="18" r="1.2" fill="rgba(18,34,54,.4)"/><circle cx="52" cy="16" r="1.2" fill="rgba(18,34,54,.3)"/><circle cx="42" cy="18" r="1" fill="rgba(18,34,54,.3)"/></svg>`,
+  'cobia':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M4 22Q12 14 50 13Q66 13 72 22Q66 31 50 31Q12 30 4 22Z" fill="#633806" opacity=".85"/><path d="M72 22Q76 15 80 22Q76 29 72 22Z" fill="#633806" opacity=".7"/><path d="M36 13Q42 6 48 12" stroke="#854F0B" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M36 31Q42 38 48 32" stroke="#633806" stroke-width="2.5" fill="none" stroke-linecap="round"/><path d="M4 22Q8 22 12 22" stroke="#854F0B" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="10" cy="21" r="2.8" fill="#07111F"/><circle cx="9" cy="20" r="1.1" fill="rgba(255,255,255,.35)"/><path d="M18 15Q44 13 64 18" stroke="rgba(255,255,255,.1)" stroke-width="1" fill="none"/><path d="M18 19Q44 17 68 22" stroke="#412402" stroke-width="1.5" fill="none"/></svg>`,
+  'winter-flounder':`<svg width="56" height="32" viewBox="0 0 80 44"><ellipse cx="36" cy="26" rx="28" ry="13" fill="#B4B2A9" opacity=".85"/><path d="M64 26Q74 18 78 26Q74 34 64 26Z" fill="#B4B2A9" opacity=".7"/><path d="M14 20Q8 13 6 7Q12 12 18 20Z" fill="#B4B2A9" opacity=".6"/><path d="M14 32Q8 38 6 44Q12 36 18 32Z" fill="#B4B2A9" opacity=".6"/><circle cx="14" cy="22" r="2.5" fill="#07111F"/><circle cx="13.5" cy="21.5" r="1" fill="rgba(255,255,255,.4)"/><path d="M20 16Q32 12 50 14Q60 15 64 18" stroke="rgba(255,255,255,.15)" stroke-width="1" fill="none"/><path d="M20 20Q36 17 56 19" stroke="rgba(255,255,255,.1)" stroke-width=".8" fill="none"/></svg>`,
+  'wahoo':`<svg width="56" height="32" viewBox="0 0 80 44"><path d="M2 22Q16 16 56 14Q68 14 74 22Q68 30 56 30Q16 28 2 22Z" fill="#E84040" opacity=".8"/><path d="M74 22Q78 15 82 22Q78 29 74 22Z" fill="#E84040" opacity=".7"/><path d="M60 14Q66 8 70 14" stroke="#E84040" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M60 30Q66 36 70 30" stroke="#E84040" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="10" cy="22" r="2.5" fill="#07111F"/><circle cx="9" cy="21" r="1" fill="rgba(255,255,255,.4)"/><path d="M16 18Q24 16 32 18Q40 20 48 18Q56 16 64 18" stroke="rgba(255,255,255,.15)" stroke-width="1.2" fill="none"/><path d="M16 22Q24 20 32 22Q40 24 48 22Q56 20 64 22" stroke="rgba(255,255,255,.12)" stroke-width="1.2" fill="none"/><path d="M16 26Q24 24 32 26Q40 28 48 26" stroke="rgba(255,255,255,.1)" stroke-width="1" fill="none"/></svg>`
+};
+
+function speciesHTML(aw,awv,sstF,mp,pp){
+  return SPECIES.map(sp=>{
+    const{score,tip,metrics}=sp.score(aw,awv,sstF,mp,pp);
+    const verd=vw(score);
+    const vp=score>=68?'spgo':score>=42?'spmy':'spno';
+    return`<div class="sp-card" id="sp-${sp.id}">
+      <div class="sp-hdr" onclick="toggleSp('${sp.id}')">
+        <div class="sp-left">
+          <span class="sp-emoji">${FISH_SVG[sp.id]||sp.emoji}</span>
+          <div><div class="sp-name">${sp.name}</div><div class="sp-sub">${sp.sub}</div></div>
+        </div>
+        <div class="sp-right">
+          <span class="sp-pill ${vp}">${verd}</span>
+          <span class="sp-chev">⌄</span>
+        </div>
+      </div>
+      <div class="sp-body">
+        <div class="sp-metrics">
+          ${metrics.map(m=>`<div class="sp-m">
+            <div class="sp-m-lbl">${m.l}</div>
+            <div class="sp-m-val">${m.v} <span class="pill ${m.p}" style="font-size:9px;">${pillTxt(m.p)}</span></div>
+            <div class="sp-m-ideal">${m.i}</div>
+          </div>`).join('')}
+        </div>
+        <div class="sp-tip${score<68?(' tip-'+(score<42?'bad':'warn')):''}">
+          ${tip||'Conditions look suitable for this species.'}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSp(id){document.getElementById('sp-'+id).classList.toggle('spx');}
+
+// ── RENDER CONDITIONS ──
+function renderConditions(){
+  if(!forecastData)return;
+  const f=forecastData,i=activeDayIdx;
+  const winds=slc(f.weather.hourly.wind_speed_10m,i);
+  const wDirs=slc(f.weather.hourly.wind_direction_10m,i);
+  const press=slc(f.weather.hourly.surface_pressure,i);
+  const temps=slc(f.weather.hourly.temperature_2m,i);
+  const waves=slc(f.marine.hourly.wave_height,i);
+  const swells=slc(f.marine.hourly.swell_wave_height,i);
+  const wDirsM=slc(f.marine.hourly.wave_direction,i);
+  const periods=slc(f.marine.hourly.wave_period,i);
+  const sstArr=slc(f.marine.hourly.sea_surface_temperature,i).filter(v=>v>-5&&v<35);
+
+  const aw=avg(winds),mxw=Math.max(...winds);
+  const mp=press[12]||press[0],pp=press[0];
+  const mt=temps[12]||temps[0];
+  const awv=avg(waves),asw=avg(swells);
+  const mwd=wDirsM[12]||wDirsM[0];
+  const mwnd=wDirs[12]||wDirs[0];
+  const mper=periods[12]||periods[0];
+  const sstC=sstArr.length?avg(sstArr):18;
+  const sstF=c2f(sstC);
+  const sstNow=sstArr.length?sstF:null;
+  // SST 24h trend for condition card
+  const sst24a=slc(forecastData.marine.hourly.sea_surface_temperature,0).filter(v=>v>-5&&v<35);
+  const sst24b=slc(forecastData.marine.hourly.sea_surface_temperature,1).filter(v=>v>-5&&v<35);
+  const sstTrendVal=(sst24a.length&&sst24b.length)?c2f(avg(sst24b))-c2f(avg(sst24a)):0;
+  const sstTrendStr=sstTrendVal>0.5?'↑ Warming':sstTrendVal<-0.5?'↓ Cooling':'→ Stable';
+  const sstTrendColor=sstTrendVal>0.5?'var(--red)':sstTrendVal<-0.5?'#3A9BDC':'var(--t2)';
+
+  const pt=mp-pp;
+  const ts=pt>0.8?'Rising':pt<-0.8?'Falling':'Steady';
+  const tp=pt>0.8?'pgo':pt<-0.8?'pwr':'pnu';
+  const{score,issues}=overallScore(aw,awv,mp,pp,activeRegion);
+  const moon=moonPhase(new Date(Date.now()+i*86400000));
+  // tides now come from NOAA cache via renderTideGrid(i)
+
+  const sstColor=sstF>=68?'var(--teal)':sstF>=58?'var(--amber)':'var(--red)';
+  const sstNote=sstF>=70?'Warm — prime offshore conditions':sstF>=64?'Warming — late season inshore':sstF>=56?'Cool — inshore species active':sstF>=46?'Cold — stripers and tautog season':'Very cold — limited surface activity';
+
+  const dayLbl=i===0?'Today\'s Verdict':`${DAYS[new Date(Date.now()+i*86400000).getDay()]} Forecast`;
+  const issNote=issues.length?issues.join(' · '):'All conditions favorable';
+  const wvp=m2ft(awv)<3?'pgo':m2ft(awv)<5.5?'pwr':'pno';
+  const wndp=aw<15?'pgo':aw<22?'pwr':'pno';
+
+  // Conditions HTML
+  const condHTML=`<div class="fade-in">
+    <div class="verdict-block ${vbc(score)}">
+      <div class="v-row">
+        <div>
+          <div class="v-eye">${dayLbl} · ${activeRegion.name}</div>
+          <div class="v-main ${sc(score)}">${vw(score)}</div>
+          <div class="v-issues">${issNote}</div>
+        </div>
+        <div class="score-bubble ${sbc(score)}">
+          <div class="sc-n ${sc(score)}">${score}</div>
+          <div class="sc-d">/100</div>
+        </div>
+      </div>
+    </div>
+    ${activeRegion&&activeRegion.canyon?`<div style="margin-bottom:12px;border-radius:var(--rl);padding:14px 18px;background:rgba(232,64,64,0.08);border:1px solid rgba(232,64,64,0.35);display:flex;align-items:center;gap:14px;"><span style="font-size:24px;flex-shrink:0;">⚠️</span><div><div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--t2);margin-bottom:3px;font-family:var(--fm);">Canyon Run Advisory</div><div style="font-size:14px;font-weight:500;color:var(--text);">~${activeRegion.runMiles} mile offshore run</div><div style="font-size:12px;color:var(--t2);margin-top:3px;">Conditions must be near-perfect. Check 48hr forecast, USCG radio, and file a float plan before departure.</div></div></div>`:''}
+    <div class="wt-banner">
+      <div class="wt-icon">🌡️</div>
+      <div>
+        <div class="wt-eye">Sea Surface Temperature</div>
+        <div class="wt-val" style="color:${sstColor};">${sstF.toFixed(1)}°F</div>
+        <div class="wt-note">${sstNote}</div>
+      </div>
+    </div>
+    <div class="sec-head">Conditions</div>
+    <div class="cond-grid">
+      <div class="cc"><span class="cc-icon">💨</span><div class="cc-lbl">Wind Avg</div><div class="cc-val">${Math.round(aw)}</div><div class="cc-unit">mph · ${d2c(mwnd)}</div><span class="pill ${wndp}">${pillTxt(wndp)}</span></div>
+      <div class="cc"><span class="cc-icon">⚡</span><div class="cc-lbl">Wind Max</div><div class="cc-val">${Math.round(mxw)}</div><div class="cc-unit">mph peak</div><span class="pill ${mxw<18?'pgo':mxw<25?'pwr':'pno'}">${pillTxt(mxw<18?'pgo':mxw<25?'pwr':'pno')}</span></div>
+      <div class="cc"><span class="cc-icon">🌊</span><div class="cc-lbl">Wave Height</div><div class="cc-val">${m2ft(awv).toFixed(1)}</div><div class="cc-unit">ft · ${d2c(mwd)}</div><span class="pill ${wvp}">${pillTxt(wvp)}</span></div>
+      <div class="cc"><span class="cc-icon">〰️</span><div class="cc-lbl">Swell</div><div class="cc-val">${m2ft(asw).toFixed(1)}</div><div class="cc-unit">ft · ${Math.round(mper)}s period</div><span class="pill ${m2ft(asw)<3?'pgo':m2ft(asw)<5?'pwr':'pno'}">${pillTxt(m2ft(asw)<3?'pgo':m2ft(asw)<5?'pwr':'pno')}</span></div>
+      <div class="cc"><span class="cc-icon">☁️</span><div class="cc-lbl">Air Temp</div><div class="cc-val">${Math.round(c2f(mt))}°</div><div class="cc-unit">Fahrenheit</div><span class="pill pnu">Surface air</span></div>
+      <div class="cc"><span class="cc-icon">⬇️</span><div class="cc-lbl">Pressure</div><div class="cc-val">${Math.round(mp)}</div><div class="cc-unit">hPa · ${ts}</div><span class="pill ${tp}">${ts==='Rising'?'Favorable':ts==='Falling'?'Watch out':'Stable'}</span></div>
+      <div class="cc"><span class="cc-icon">${moon.sym}</span><div class="cc-lbl">Moon</div><div class="cc-val" style="font-family:var(--fb);font-size:13px;font-weight:500;line-height:1.3;margin-top:3px;">${moon.name}</div><div class="cc-unit">&nbsp;</div><span class="pill ${moon.p}">${moon.tip}</span></div>
+    </div>
+    <div class="sec-head">Tides — ${activeRegion.name}</div>
+    <div class="tide-grid" id="tide-grid-today">
+      ${renderTideGrid(i)}
+    </div>
+    ${activeRegion.notes?`<div class="sec-head">Zone Notes</div><div class="zone-note"><strong>${activeRegion.name}:</strong> ${activeRegion.notes}</div>`:''}
+  </div>`;
+
+  // Only update the conditions panel — other panels render lazily on first click
+  document.getElementById('panel-conditions').innerHTML=condHTML;
+  // Reset lazy render cache so species/tides update when day changes
+  renderedPanels.delete('species');
+  renderedPanels.delete('tides');
+  renderedPanels.delete('ocean');
+  // Re-render currently visible non-conditions panel if open
+  if(activePanel==='species') renderSpeciesPanel();
+  if(activePanel==='tides')   renderTidesPanel();
+  if(activePanel==='ocean')   renderOceanPanel();
+}
+
+
+
+function renderOceanPanel(){
+  if(!forecastData) return;
+  const i = activeDayIdx;
+  const sstArr = slc(forecastData.marine.hourly.sea_surface_temperature,i).filter(v=>v>-5&&v<35);
+  const sstNow = sstArr.length ? c2f(avg(sstArr)) : null;
+  const sst24a = slc(forecastData.marine.hourly.sea_surface_temperature,0).filter(v=>v>-5&&v<35);
+  const sst24b = slc(forecastData.marine.hourly.sea_surface_temperature,1).filter(v=>v>-5&&v<35);
+  const sstTrendVal = (sst24a.length&&sst24b.length) ? c2f(avg(sst24b))-c2f(avg(sst24a)) : 0;
+  const trendStr = sstTrendVal>0.5?'↑ Warming':sstTrendVal<-0.5?'↓ Cooling':'→ Stable';
+  const trendColor = sstTrendVal>0.5?'var(--red)':sstTrendVal<-0.5?'#3A9BDC':'var(--t2)';
+  const sstColor = sstNow?(sstNow>=68?'var(--teal)':sstNow>=58?'var(--amber)':'#3A9BDC'):'var(--t2)';
+  const sstNote = sstNow?(sstNow>=70?'Warm — prime offshore':sstNow>=64?'Warming — late inshore season':sstNow>=56?'Cool — inshore species active':sstNow>=46?'Cold — tautog & winter flounder':'Very cold — limited surface activity'):'Unavailable';
+
+  // Species in optimal SST range
+  const hits = [];
+  if(sstNow){
+    if(sstNow>=60&&sstNow<=76) hits.push({sp:'Fluke',note:'Prime temp range'});
+    if(sstNow>=48&&sstNow<=68) hits.push({sp:'Striped Bass',note:'Active feeding'});
+    if(sstNow>=68) hits.push({sp:'Tuna - Offshore',note:'Warm water'});
+    if(sstNow>=70) hits.push({sp:'Mahi-Mahi',note:'Prime canyon water'});
+    if(sstNow>=44&&sstNow<=54) hits.push({sp:'Flounder - Winter',note:'Prime cold water'});
+    if(sstNow>=48&&sstNow<=60) hits.push({sp:'Tautog',note:'Active on wrecks'});
+    if(sstNow>=58&&sstNow<=74) hits.push({sp:'Bluefish',note:'Prime feeding'});
+    if(sstNow>=60&&sstNow<=68) hits.push({sp:'Tuna - Inshore',note:'Bluefin close'});
+    if(sstNow>=70) hits.push({sp:'Wahoo',note:'Canyon conditions'});
+    if(sstNow>=68) hits.push({sp:'Cobia',note:'Pushing north'});
+  }
+  const sstSpeciesHTML = hits.length
+    ? hits.map(h=>`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--bdr);">
+        <span style="font-size:13px;font-weight:500;color:var(--text);">${h.sp}</span>
+        <span class="pill pgo">${h.note}</span>
+      </div>`).join('')
+    : '<div style="font-size:13px;color:var(--t2);padding:8px 0;">No species in optimal temperature range at current SST.</div>';
+
+  // Build zone-specific map URLs centered on current region
+  const lat = activeRegion.lat;
+  const lon = activeRegion.lon;
+  const latMin = (lat-2).toFixed(1), latMax = (lat+2).toFixed(1);
+  const lonMin = (lon-3).toFixed(1), lonMax = (lon+1).toFixed(1);
+
+  const resources = [
+    {
+      icon:'🛰',
+      name:'NOAA CoastWatch — Chlorophyll & SST Viewer',
+      desc:'Live satellite chlorophyll-a imagery for the NJ coast and offshore canyons. Look for the green-to-blue color change where bait concentrates.',
+      url:'https://coastwatch.noaa.gov/cw_html/cwViewer.html',
+      pill:'Chlorophyll',
+      pillClass:'pgo'
+    },
+    {
+      icon:'🌡️',
+      name:'NOAA CoastWatch — Sea Surface Temperature',
+      desc:'Real-time SST satellite imagery. Find the temperature break where warm Gulf Stream water meets cooler shelf water — that edge holds fish.',
+      url:'https://coastwatch.noaa.gov/cw_html/cwViewer.html',
+      pill:'SST Satellite',
+      pillClass:'pgo'
+    },
+    {
+      icon:'🗺',
+      name:'NASA Worldview — Ocean Color Imagery',
+      desc:'Full-resolution NASA satellite imagery. Zoom into your exact fishing area to see water color, cloud cover, and ocean features in detail.',
+      url:`https://worldview.earthdata.nasa.gov/?v=${lonMin},${latMin},${lonMax},${latMax}&l=MODIS_Aqua_Chlorophyll_A,Coastlines_15m`,
+      pill:'Free Satellite',
+      pillClass:'pgo'
+    },
+    {
+      icon:'📡',
+      name:'Rutgers Ocean Observatories — NJ Shelf',
+      desc:'Real-time ocean glider and buoy data from Rutgers University. The most detailed in-water data available specifically for the NJ Mid-Atlantic shelf.',
+      url:'https://rucool.marine.rutgers.edu/data/',
+      pill:'NJ Specific',
+      pillClass:'pgo'
+    },
+    {
+      icon:'🌊',
+      name:'NOAA Buoy 44091 — Barnegat Offshore',
+      desc:'Live buoy 25 miles offshore central NJ — water temp, wave height, wind and pressure. The closest physical buoy to Manasquan Inlet and the nearshore wrecks.',
+      url:'https://www.ndbc.noaa.gov/station_page.php?station=44091',
+      pill:'Live Buoy',
+      pillClass:'pgo'
+    },
+    {
+      icon:'🌊',
+      name:'NOAA Buoy 44009 — Delaware Bay Offshore',
+      desc:'Live buoy offshore Delaware Bay — essential reference for south Jersey and Cape May boats. Water temp, waves, wind and barometric pressure.',
+      url:'https://www.ndbc.noaa.gov/station_page.php?station=44009',
+      pill:'Live Buoy',
+      pillClass:'pgo'
+    },
+    {
+      icon:'🗺',
+      name:'NDBC Buoy Map — All Mid-Atlantic Stations',
+      desc:'Interactive map of all active NOAA buoys in the region. Click any buoy icon for live conditions including offshore canyon approach buoys.',
+      url:'https://www.ndbc.noaa.gov/',
+      pill:'All Buoys',
+      pillClass:'pnu'
+    },
+    {
+      icon:'📊',
+      name:'NOAA Ocean Explorer — Canyon Data',
+      desc:'Deep sea canyon research and data for the Hudson, Baltimore and Wilmington canyons. Current research expeditions and historical data.',
+      url:'https://oceanexplorer.noaa.gov/explorations/explorations.html',
+      pill:'Canyon Data',
+      pillClass:'pnu'
+    },
+  ];
+
+  const resourcesHTML = resources.map(r=>`
+    <a href="${r.url}" target="_blank" rel="noopener" style="display:block;text-decoration:none;background:var(--card);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px 18px;margin-bottom:10px;transition:border-color 0.15s;" onmouseover="this.style.borderColor='var(--bdr2)'" onmouseout="this.style.borderColor='var(--bdr)'">
+      <div style="display:flex;align-items:flex-start;gap:14px;">
+        <span style="font-size:24px;flex-shrink:0;line-height:1.2;">${r.icon}</span>
+        <div style="flex:1;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+            <span style="font-size:14px;font-weight:500;color:var(--text);">${r.name}</span>
+            <span class="pill ${r.pillClass}" style="font-size:10px;">${r.pill}</span>
+          </div>
+          <div style="font-size:12px;color:var(--t2);line-height:1.6;">${r.desc}</div>
+        </div>
+        <span style="color:var(--t3);font-size:14px;flex-shrink:0;margin-top:2px;">↗</span>
+      </div>
+    </a>`).join('');
+
+  const pad = window.innerWidth>700?'':'padding:0 16px;';
+  const headPad = window.innerWidth>700?'':'padding:18px 16px 10px;';
+
+  const panel = document.getElementById('panel-ocean');
+  if(!panel) return;
+  panel.innerHTML = `
+    <div class="sec-head" style="${headPad}">Ocean Conditions — ${activeRegion.name}</div>
+    <div style="${pad}">
+
+      <div style="background:rgba(58,155,220,0.1);border:1px solid rgba(58,155,220,0.3);border-radius:var(--rl);padding:16px 18px;margin-bottom:16px;display:flex;align-items:center;gap:16px;">
+        <div>
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:0.08em;color:var(--t2);margin-bottom:3px;font-family:var(--fm);">Sea Surface Temperature</div>
+          <div style="font-family:var(--fd);font-size:42px;letter-spacing:2px;color:${sstColor};line-height:1;">${sstNow?sstNow.toFixed(1)+'°F':'—'}</div>
+          <div style="font-size:13px;margin-top:4px;">
+            <span style="color:${trendColor};font-weight:500;">${trendStr}</span>
+            <span style="color:var(--t2);"> over next 24h · ${sstNote}</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="background:var(--navy2);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 16px;margin-bottom:20px;">
+        <div class="sec-head" style="padding:0 0 10px;">Species in Optimal SST Range</div>
+        ${sstSpeciesHTML}
+      </div>
+
+      <div class="sec-head" style="padding:0 0 12px;">Ocean Data Resources</div>
+      <div style="font-size:13px;color:var(--t2);line-height:1.7;margin-bottom:16px;padding:12px 14px;background:var(--navy2);border:1px solid var(--bdr);border-radius:var(--r);border-left:3px solid var(--teal);">
+        Chlorophyll and SST satellite data requires specialized tools to interpret correctly.
+        These are the same resources used by professional charter captains and offshore fishermen.
+        Links open pre-loaded near <strong style="color:var(--text);">${activeRegion.name}</strong> where possible.
+      </div>
+      ${resourcesHTML}
+
+    </div>`;
+}
+
+function buildTides5HTML(){
+  return`<div class="fade-in">
+    <div class="tide-5day">
+      ${renderTides5Day()}
+    </div>
+    <div class="zone-note" style="margin-top:16px;">Tide predictions from <a href="https://tidesandcurrents.noaa.gov" target="_blank" style="color:var(--teal);">NOAA Tides &amp; Currents</a>. Always check local advisories before heading out.</div>
+  </div>`;
+}
+
+function buildZonesHTML(){
+  return`<div class="fade-in">
+    <div class="zones-grid">
+      ${Object.entries(REGIONS).map(([group,regions])=>`
+        <div class="zg-group">
+          <div class="zg-lbl">${group}</div>
+          ${regions.map(r=>`<div class="zone-item" onclick="selectRegion('${r.id}')">
+            <div><div class="zi-name">${r.name}</div><div class="zi-sub">${r.sub}</div></div>
+            <span class="zi-arr">→</span>
+          </div>`).join('')}
+        </div>
+      `).join('')}
+    </div>
+  </div>`;
+}
+
+function selectDay(i){activeDayIdx=i;renderFcStrip();renderConditions();}
+
+// Track which panels have been rendered already
+const renderedPanels = new Set();
+
+function switchPanel(name){
+  activePanel=name;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  const panel = document.getElementById('panel-'+name);
+  if(!panel) return;
+  panel.classList.add('active');
+  document.querySelectorAll('.desk-tab').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));
+  document.querySelectorAll('.bn').forEach(b=>b.classList.toggle('active',b.dataset.panel===name));
+
+  // Lazy render — only build panel content when first visited
+  if(!renderedPanels.has(name) && forecastData){
+    if(name==='species') renderSpeciesPanel();
+    if(name==='tides')   renderTidesPanel();
+    if(name==='zones')   renderZonesPanel();
+    if(name==='ocean')   renderOceanPanel();
+    renderedPanels.add(name);
+  }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderSpeciesPanel(){
+  if(!forecastData) return;
+  const i=activeDayIdx;
+  const winds=slc(forecastData.weather.hourly.wind_speed_10m,i);
+  const waves=slc(forecastData.marine.hourly.wave_height,i);
+  const press=slc(forecastData.weather.hourly.surface_pressure,i);
+  const sstArr=slc(forecastData.marine.hourly.sea_surface_temperature,i).filter(v=>v>-5&&v<35);
+  const aw=avg(winds),awv=avg(waves);
+  const mp=press[12]||press[0],pp=press[0];
+  const sstF=c2f(sstArr.length?avg(sstArr):18);
+  const panel=document.getElementById('panel-species');
+  if(panel) panel.innerHTML=`<div style="padding:0;"><div class="sec-head" style="${window.innerWidth>700?'':'padding:18px 16px 10px;'}">Species Conditions</div><div class="fade-in"><div class="sp-list">${speciesHTML(aw,awv,sstF,mp,pp)}</div></div></div>`;
+}
+
+function renderTidesPanel(){
+  const panel=document.getElementById('panel-tides');
+  if(panel) panel.innerHTML=`<div><div class="sec-head" style="${window.innerWidth>700?'':'padding:18px 16px 10px;'}">5-Day Tide Guide</div>${buildTides5HTML()}</div>`;
+}
+
+function renderZonesPanel(){
+  const panel=document.getElementById('panel-zones');
+  if(panel) panel.innerHTML=`<div><div class="sec-head" style="${window.innerWidth>700?'':'padding:18px 16px 10px;'}">All NJ Zones</div>${buildZonesHTML()}</div>`;
+}
+
+async function loadRegion(region){
+  activeRegion=region;activeDayIdx=0;
+  ['deskRegionName','mobRegionName'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=region.name;});
+  ['deskRegionSub','mobRegionSub'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=region.sub;});
+
+  renderedPanels.clear();
+  document.getElementById('mainContent').innerHTML='<div class="loading">Reading the water...</div>';
+  document.getElementById('adMid').style.display='none';
+  // footer always visible
+
+  try{
+    // Run all 3 fetches in true parallel
+    const[wR,mR]=await Promise.all([
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${region.lat}&longitude=${region.lon}&hourly=wind_speed_10m,wind_direction_10m,surface_pressure,temperature_2m&forecast_days=5`),
+      fetch(`https://marine-api.open-meteo.com/v1/marine?latitude=${region.lat}&longitude=${region.lon}&hourly=wave_height,swell_wave_height,wave_direction,wave_period,sea_surface_temperature&forecast_days=5`)
+    ]);
+    const [weatherData, marineData] = await Promise.all([wR.json(), mR.json()]);
+    forecastData={weather:weatherData, marine:marineData};
+
+    // Fetch NOAA tides and chlorophyll in parallel — non-blocking
+    const tidePromise = fetchNoaaTides(region.tid||null);
+
+    // Hide static SEO placeholder once live data is ready
+    const staticEl = document.getElementById('staticContent');
+    if(staticEl) staticEl.style.display='none';
+
+    document.getElementById('mainContent').innerHTML=`
+      <div id="fcStrip" class="fc-strip"></div>
+      <div class="panel active" id="panel-conditions"></div>
+      <div class="panel" id="panel-species"></div>
+      <div class="panel" id="panel-tides"></div>
+      <div class="panel" id="panel-zones"></div>
+      <div class="panel" id="panel-ocean"></div>
+    `;
+
+    renderFcStrip();
+    renderConditions(); // renders immediately with placeholder tides
+    switchPanel(activePanel);
+
+    document.getElementById('adMid').style.display='flex';
+    // footer always visible
+
+    // When tides resolve, patch tide elements
+    tidePromise.then(()=>{
+      const tideGrid = document.getElementById('tide-grid-today');
+      if(tideGrid) tideGrid.innerHTML = renderTideGrid(activeDayIdx);
+      const tidesPanel = document.getElementById('panel-tides');
+      if(tidesPanel && tidesPanel.innerHTML.trim() !== '')
+        tidesPanel.innerHTML = `<div><div class="sec-head" style="${window.innerWidth>700?'':'padding:18px 16px 10px;'}">5-Day Tide Guide</div>${buildTides5HTML()}</div>`;
+    });
+
+
+  }catch(e){
+    document.getElementById('mainContent').innerHTML='<div class="loading">Could not load data — check your connection and try again.</div>';
+  }
+}
+
+loadRegion(REGIONS['Central NJ — Coast & Inlet'][1]);
+</script>
+</body>
+</html>
