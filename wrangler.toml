@@ -1,0 +1,17 @@
+name = "weekly-report"
+main = "weekly-report-worker.js"
+compatibility_date = "2025-01-01"
+
+# Cron trigger — every Friday at 11:00 UTC (7:00am ET)
+[triggers]
+crons = ["0 11 * * 5"]
+
+# KV namespace binding — replace id with your actual KV namespace ID
+# Get this from Cloudflare dashboard → Workers & Pages → KV
+[[kv_namespaces]]
+binding = "REPORTS"
+id     = "REPLACE_WITH_YOUR_KV_NAMESPACE_ID"
+
+# Secrets are set via CLI or dashboard — not stored in this file:
+#   wrangler secret put ANTHROPIC_API_KEY
+#   (or via Cloudflare dashboard → Worker → Settings → Variables → Secrets)

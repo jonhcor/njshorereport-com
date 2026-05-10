@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>NJ Fishing Report — Weekly Conditions | Shore Report</title>
+<meta name="description" content="Weekly NJ saltwater fishing conditions report — water temps, zone scores, species activity and weekend outlook for all New Jersey coastal fishing zones.">
+<meta property="og:title" content="NJ Weekly Fishing Report | Shore Report">
+<meta property="og:description" content="Auto-generated weekly fishing conditions for all NJ coastal zones — updated every Friday with live data.">
+<link rel="canonical" href="https://njshorereport.com/reports.html">
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-6197205248872945" crossorigin="anonymous"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#07111F;--navy2:#0D1E30;--navy3:#122440;--navy4:#162B48;
+  --text:#E4EBF0;--t2:#8BA3B4;--t3:#4A6275;
+  --teal:#1CBFAA;--amber:#F0A500;--red:#E84040;
+  --bdr:rgba(255,255,255,0.07);--bdr2:rgba(255,255,255,0.12);
+  --r:8px;--rl:12px;
+  --fd:'Bebas Neue',sans-serif;--fb:'Inter',sans-serif;
+}
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600&display=swap');
+body{background:var(--bg);color:var(--text);font-family:var(--fb);font-size:15px;line-height:1.7;min-height:100vh;}
+a{color:inherit;text-decoration:none;}
+.wrap{max-width:860px;margin:0 auto;padding:0 20px;}
+
+/* Nav */
+nav{background:rgba(7,17,31,0.97);border-bottom:1px solid var(--bdr);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);}
+.nav-logo{font-family:var(--fd);font-size:22px;letter-spacing:2px;}
+.nav-logo span{color:var(--teal);}
+.nav-links{display:flex;gap:20px;}
+.nav-link{font-size:13px;color:var(--t2);transition:color 0.15s;}
+.nav-link:hover,.nav-link.active{color:var(--teal);}
+
+/* Hero */
+.hero{padding:40px 0 28px;border-bottom:1px solid var(--bdr);margin-bottom:32px;}
+.eyebrow{font-size:11px;text-transform:uppercase;letter-spacing:0.1em;color:var(--teal);font-weight:500;margin-bottom:8px;}
+h1{font-family:var(--fd);font-size:38px;letter-spacing:2px;line-height:1.1;margin-bottom:12px;}
+.hero-sub{font-size:15px;color:var(--t2);max-width:620px;}
+
+/* Static intro — always visible to Google */
+.intro-box{background:var(--navy2);border:1px solid var(--bdr);border-radius:var(--rl);padding:20px 22px;margin-bottom:28px;}
+.intro-box p{font-size:13px;color:var(--t2);margin-bottom:10px;}
+.intro-box p:last-child{margin-bottom:0;}
+
+/* Report cards */
+.report-card{background:var(--navy2);border:1px solid var(--bdr);border-radius:var(--rl);margin-bottom:24px;overflow:hidden;}
+.report-header{padding:18px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.report-week{font-family:var(--fd);font-size:22px;letter-spacing:1.5px;}
+.report-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.score-badge{font-family:var(--fd);font-size:18px;letter-spacing:1px;padding:4px 14px;border-radius:99px;}
+.badge-go{background:rgba(28,191,170,0.15);color:var(--teal);}
+.badge-mid{background:rgba(240,165,0,0.15);color:var(--amber);}
+.badge-no{background:rgba(232,64,64,0.15);color:var(--red);}
+.report-body{padding:20px 22px;}
+.narrative{font-size:14px;color:var(--t2);line-height:1.75;margin-bottom:20px;white-space:pre-line;}
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-bottom:16px;}
+.zone-tile{background:var(--navy3);border:1px solid var(--bdr);border-radius:var(--r);padding:10px 12px;}
+.zone-tile-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px;}
+.zone-tile-score{font-size:11px;color:var(--t2);}
+.zone-score-num{font-family:var(--fd);font-size:16px;letter-spacing:1px;}
+.go{color:var(--teal);} .mid{color:var(--amber);} .no{color:var(--red);}
+.species-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+.sp-tag{font-size:11px;padding:3px 10px;border-radius:99px;background:rgba(28,191,170,0.1);color:var(--teal);border:1px solid rgba(28,191,170,0.2);}
+.sst-strip{display:inline-flex;align-items:center;gap:8px;padding:6px 12px;background:rgba(58,155,220,0.1);border:1px solid rgba(58,155,220,0.25);border-radius:99px;font-size:12px;color:var(--t2);margin-bottom:12px;}
+.sst-val{color:#3A9BDC;font-weight:600;}
+
+/* Loading & empty states */
+.loading-state{text-align:center;padding:60px 20px;color:var(--t2);}
+.loading-spinner{width:32px;height:32px;border:3px solid var(--bdr);border-top-color:var(--teal);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.empty-state{text-align:center;padding:48px 20px;color:var(--t2);font-size:14px;}
+
+/* CTA */
+.cta-bar{background:var(--navy2);border:1px solid var(--bdr);border-radius:var(--rl);padding:22px;text-align:center;margin:32px 0;}
+.cta-bar h3{font-size:18px;font-weight:500;margin-bottom:8px;}
+.cta-bar p{font-size:13px;color:var(--t2);margin-bottom:16px;}
+.cta-btn{display:inline-block;background:var(--teal);color:#07111F;font-weight:600;font-size:13px;padding:10px 24px;border-radius:99px;}
+
+/* Footer */
+footer{border-top:1px solid var(--bdr);padding:24px 20px;margin-top:48px;}
+.footer-inner{max-width:860px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.footer-logo{font-family:var(--fd);font-size:18px;letter-spacing:2px;}
+.footer-logo span{color:var(--teal);}
+.footer-links{display:flex;gap:18px;flex-wrap:wrap;}
+.footer-link{font-size:12px;color:var(--t3);transition:color 0.15s;}
+.footer-link:hover{color:var(--t2);}
+.footer-copy{font-size:11px;color:var(--t3);width:100%;}
+
+@media(max-width:600px){
+  h1{font-size:28px;}
+  .zone-grid{grid-template-columns:repeat(2,1fr);}
+  .report-header{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-logo">SHORE<span>REPORT</span></a>
+  <div class="nav-links">
+    <a href="/" class="nav-link">Home</a>
+    <a href="/conditions.html" class="nav-link">Conditions</a>
+    <a href="/guide.html" class="nav-link">Guide</a>
+    <a href="/reports.html" class="nav-link active">Reports</a>
+  </div>
+</nav>
+
+<div class="wrap">
+
+  <div class="hero">
+    <div class="eyebrow">Updated Every Friday</div>
+    <h1>NJ Weekly Fishing Report</h1>
+    <p class="hero-sub">Auto-generated conditions summary for all New Jersey coastal zones — live data, zone scores, water temps, and species activity updated every Friday morning.</p>
+  </div>
+
+  <!-- Static content — visible to Google crawler without JS -->
+  <div class="intro-box" id="staticIntro">
+    <p>Shore Report's weekly fishing conditions report covers all major New Jersey saltwater fishing zones from Sandy Hook in the north to Cape May in the south, plus the offshore canyon zone at Hudson Canyon. Each report is automatically generated from live marine and weather data including sea surface temperature, wind speed, wave height, and barometric pressure.</p>
+    <p>The zone scoring system rates each area from 0 to 100 based on current conditions — GO FISH (68–100) means conditions are favorable for most species, BORDERLINE (42–67) means fishing is possible but conditions are less than ideal, and STAY IN (0–41) means conditions are poor or potentially dangerous. Canyon zones are scored with stricter thresholds given the longer offshore run involved.</p>
+    <p>Water temperature is the primary driver of species activity in NJ waters. The report includes which species are currently in their optimal feeding temperature range based on the current sea surface temperature reading for the NJ coast. For full zone-by-zone breakdowns and 5-day forecast scoring, use the live conditions tool.</p>
+  </div>
+
+  <!-- Reports loaded from Worker -->
+  <div id="reportsContainer">
+    <div class="loading-state">
+      <div class="loading-spinner"></div>
+      <div>Loading latest reports...</div>
+    </div>
+  </div>
+
+  <div class="cta-bar">
+    <h3>Want Live Conditions?</h3>
+    <p>Check real-time zone scores, NOAA tides, 5-day forecast and species reports for all 23 NJ zones.</p>
+    <a href="/conditions.html" class="cta-btn">Open Conditions Tool →</a>
+  </div>
+
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-logo">SHORE<span>REPORT</span></div>
+    <div class="footer-links">
+      <a href="/" class="footer-link">Home</a>
+      <a href="/conditions.html" class="footer-link">Conditions</a>
+      <a href="/guide.html" class="footer-link">Guide</a>
+      <a href="/reports.html" class="footer-link">Reports</a>
+    </div>
+    <div class="footer-copy">Weather & marine data: Open-Meteo. Tide data: NOAA Tides & Currents. Shore Report is for informational purposes only — always verify conditions before going offshore. © 2025 Shore Report.</div>
+  </div>
+</footer>
+
+<script>
+// ── Replace this URL with your actual weekly-report Worker URL ──
+const WORKER_URL = 'https://weekly-report.jon-hcor.workers.dev';
+
+function scoreClass(score){
+  return score >= 68 ? 'go' : score >= 42 ? 'mid' : 'no';
+}
+function badgeClass(score){
+  return score >= 68 ? 'badge-go' : score >= 42 ? 'badge-mid' : 'badge-no';
+}
+function verdictLabel(score){
+  return score >= 68 ? 'GO FISH' : score >= 42 ? 'BORDERLINE' : 'STAY IN';
+}
+
+function renderReport(r){
+  const bc = badgeClass(r.avgScore);
+  const zonesHTML = r.zones.map(z => `
+    <div class="zone-tile">
+      <div class="zone-tile-name">${z.name}</div>
+      <div class="zone-tile-score">
+        <span class="zone-score-num ${scoreClass(z.score)}">${z.score}</span>
+        <span style="color:var(--t3);"> / 100 · ${z.wind}mph · ${z.waveH}ft · ${z.sstF}°F</span>
+      </div>
+    </div>`).join('');
+
+  const speciesHTML = r.activeSpecies?.length
+    ? r.activeSpecies.map(s => `<span class="sp-tag">${s}</span>`).join('')
+    : '<span style="font-size:12px;color:var(--t3);">No species in optimal temp range</span>';
+
+  return `
+    <div class="report-card">
+      <div class="report-header">
+        <div class="report-week">${r.weekLabel}</div>
+        <div class="report-meta">
+          <span class="score-badge ${bc}">${verdictLabel(r.avgScore)}</span>
+          <span style="font-size:12px;color:var(--t3);">Avg score ${r.avgScore}/100</span>
+        </div>
+      </div>
+      <div class="report-body">
+        <div class="sst-strip">
+          🌡️ Avg water temp: <span class="sst-val">${r.avgSST}°F</span>
+          &nbsp;·&nbsp; Best zone: <span style="color:var(--text);font-weight:500;">${r.bestZone}</span>
+          &nbsp;·&nbsp; Canyon: <span class="${scoreClass(r.canyonScore)}">${r.canyonVerdict}</span>
+        </div>
+        <div class="narrative">${r.narrative}</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:8px;">Zone Breakdown</div>
+        <div class="zone-grid">${zonesHTML}</div>
+        <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.08em;color:var(--t3);margin-bottom:6px;">Species in Optimal Temp Range</div>
+        <div class="species-row">${speciesHTML}</div>
+      </div>
+    </div>`;
+}
+
+async function loadReports(){
+  const container = document.getElementById('reportsContainer');
+  try {
+    const res = await fetch(`${WORKER_URL}/reports`);
+    if(!res.ok) throw new Error('Worker returned ' + res.status);
+    const reports = await res.json();
+
+    if(!reports || reports.length === 0){
+      container.innerHTML = `<div class="empty-state">
+        <div style="font-size:32px;margin-bottom:12px;">🎣</div>
+        <div>No reports yet — the first report will be generated automatically this Friday morning.</div>
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = reports.map(renderReport).join('');
+
+    // Hide static intro once reports loaded
+    const intro = document.getElementById('staticIntro');
+    if(intro) intro.style.display = 'none';
+
+  } catch(e) {
+    container.innerHTML = `<div class="empty-state">
+      <div style="font-size:32px;margin-bottom:12px;">🎣</div>
+      <div>Reports unavailable right now — check back Friday morning for the weekly update.</div>
+      <div style="margin-top:8px;font-size:12px;color:var(--t3);">${e.message}</div>
+    </div>`;
+  }
+}
+
+loadReports();
+</script>
+
+</body>
+</html>
