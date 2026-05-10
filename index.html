@@ -260,13 +260,57 @@ nav.scrolled{
 .seo-body strong{color:var(--text);font-weight:500;}
 
 /* ── ZONES CTA ── */
+.weekly-report-section{padding:64px 20px;background:var(--navy2);border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);}
+.wr-inner{max-width:860px;margin:0 auto;}
+.wr-card{background:var(--bg);border:1px solid var(--bdr);border-radius:16px;overflow:hidden;margin-top:24px;}
+.wr-card-header{padding:18px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.wr-week{font-family:var(--fd);font-size:20px;letter-spacing:1.5px;}
+.wr-badge{font-family:var(--fd);font-size:14px;letter-spacing:1px;padding:4px 12px;border-radius:99px;}
+.wr-go{background:rgba(28,191,170,0.15);color:var(--teal);}
+.wr-mid{background:rgba(240,165,0,0.15);color:var(--amber);}
+.wr-no{background:rgba(232,64,64,0.15);color:var(--red);}
+.wr-body{padding:20px 22px;}
+.wr-narrative{font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.wr-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+@media(max-width:600px){.wr-zones{grid-template-columns:repeat(2,1fr);}}
+.wr-zone{background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:9px 11px;}
+.wr-zone-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.wr-zone-score{font-family:var(--fd);font-size:15px;letter-spacing:1px;}
+.wr-zone-detail{font-size:10px;color:var(--t3);margin-top:1px;}
+.wr-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--bdr);flex-wrap:wrap;gap:10px;}
+.wr-species{display:flex;flex-wrap:wrap;gap:5px;}
+.wr-sp-tag{font-size:10px;padding:2px 8px;border-radius:99px;background:rgba(28,191,170,0.1);color:var(--teal);border:1px solid rgba(28,191,170,0.2);}
+.wr-read-more{font-size:13px;color:var(--teal);font-weight:500;}
+.wr-loading{padding:32px;text-align:center;color:var(--t2);font-size:13px;}
 .zones-cta{
   background:linear-gradient(135deg,rgba(28,191,170,0.08) 0%,rgba(7,17,31,0) 60%);
   border:1px solid rgba(28,191,170,0.2);border-radius:20px;
   padding:56px 48px;text-align:center;
   margin:0 32px;
 }
-@media(max-width:700px){.zones-cta{margin:0 20px;padding:40px 24px;}}
+@media(max-width:700px){.weekly-report-section{padding:64px 20px;background:var(--navy2);border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);}
+.wr-inner{max-width:860px;margin:0 auto;}
+.wr-card{background:var(--bg);border:1px solid var(--bdr);border-radius:16px;overflow:hidden;margin-top:24px;}
+.wr-card-header{padding:18px 22px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;}
+.wr-week{font-family:var(--fd);font-size:20px;letter-spacing:1.5px;}
+.wr-badge{font-family:var(--fd);font-size:14px;letter-spacing:1px;padding:4px 12px;border-radius:99px;}
+.wr-go{background:rgba(28,191,170,0.15);color:var(--teal);}
+.wr-mid{background:rgba(240,165,0,0.15);color:var(--amber);}
+.wr-no{background:rgba(232,64,64,0.15);color:var(--red);}
+.wr-body{padding:20px 22px;}
+.wr-narrative{font-size:14px;color:var(--t2);line-height:1.8;margin-bottom:18px;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden;}
+.wr-zones{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px;}
+@media(max-width:600px){.wr-zones{grid-template-columns:repeat(2,1fr);}}
+.wr-zone{background:var(--navy2);border:1px solid var(--bdr);border-radius:8px;padding:9px 11px;}
+.wr-zone-name{font-size:11px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.wr-zone-score{font-family:var(--fd);font-size:15px;letter-spacing:1px;}
+.wr-zone-detail{font-size:10px;color:var(--t3);margin-top:1px;}
+.wr-footer{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--bdr);flex-wrap:wrap;gap:10px;}
+.wr-species{display:flex;flex-wrap:wrap;gap:5px;}
+.wr-sp-tag{font-size:10px;padding:2px 8px;border-radius:99px;background:rgba(28,191,170,0.1);color:var(--teal);border:1px solid rgba(28,191,170,0.2);}
+.wr-read-more{font-size:13px;color:var(--teal);font-weight:500;}
+.wr-loading{padding:32px;text-align:center;color:var(--t2);font-size:13px;}
+.zones-cta{margin:0 20px;padding:40px 24px;}}
 .cta-title{font-family:var(--fd);font-size:clamp(36px,6vw,64px);letter-spacing:3px;margin-bottom:16px;}
 .cta-sub{font-size:16px;color:var(--t2);margin-bottom:32px;line-height:1.7;}
 
@@ -303,6 +347,8 @@ footer{
     <a href="#how-it-works" class="nav-link">How It Works</a>
     <a href="#zones" class="nav-link">Zones</a>
     <a href="#species" class="nav-link">Species</a>
+    <a href="guide.html" class="nav-link">Guide</a>
+    <a href="reports.html" class="nav-link">Weekly Report</a>
     <a href="conditions.html" class="nav-cta">Check Conditions →</a>
   </div>
 </nav>
@@ -330,8 +376,8 @@ footer{
     <a href="conditions.html" class="btn-primary">
       Check Today's Conditions →
     </a>
-    <a href="#how-it-works" class="btn-secondary">
-      How It Works
+    <a href="#weekly-report" class="btn-secondary">
+      This Week's Report
     </a>
   </div>
 
@@ -360,6 +406,18 @@ footer{
     <div class="stat-lbl">Species Reports</div>
   </div>
 </div>
+
+<!-- WEEKLY REPORT -->
+<section class="weekly-report-section" id="weekly-report">
+  <div class="wr-inner">
+    <div class="section-eyebrow">Updated Every Friday</div>
+    <h2 style="font-family:var(--fd);font-size:32px;letter-spacing:2px;margin-bottom:8px;">This Week's Fishing Report</h2>
+    <p style="font-size:14px;color:var(--t2);max-width:540px;">Auto-generated from live marine data every Friday morning — zone scores, water temps, species activity and the weekend outlook.</p>
+    <div id="homepageReport">
+      <div class="wr-loading">Loading latest report...</div>
+    </div>
+  </div>
+</section>
 
 <!-- HOW IT WORKS -->
 <section class="section" id="how-it-works">
@@ -550,6 +608,58 @@ footer{
     </a>
   </div>
 </div>
+
+<script>
+(function(){
+  const WORKER = 'https://weekly-report.jon-hcor.workers.dev';
+
+  function sc(s){ return s>=68?'go':s>=42?'mid':'no'; }
+  function bc(s){ return s>=68?'wr-go':s>=42?'wr-mid':'wr-no'; }
+  function vl(s){ return s>=68?'GO FISH':s>=42?'BORDERLINE':'STAY IN'; }
+  function zc(s){ return s>=68?'var(--teal)':s>=42?'var(--amber)':'var(--red)'; }
+
+  async function loadHomepageReport(){
+    const el = document.getElementById('homepageReport');
+    if(!el) return;
+    try{
+      const res = await fetch(WORKER + '/latest');
+      const r = await res.json();
+      if(!r){ el.innerHTML = '<div class="wr-loading">No reports yet — check back Friday.</div>'; return; }
+
+      const zonesHTML = r.zones.filter(z=>z.type!=='canyon').map(z=>`
+        <div class="wr-zone">
+          <div class="wr-zone-name">${z.name}</div>
+          <div class="wr-zone-score" style="color:${zc(z.score)};">${z.score}<span style="font-size:10px;color:var(--t3);"> /100</span></div>
+          <div class="wr-zone-detail">${z.wind}mph · ${z.waveH}ft · ${z.sstF}°F</div>
+        </div>`).join('');
+
+      const speciesHTML = (r.activeSpecies||[]).map(s=>`<span class="wr-sp-tag">${s}</span>`).join('');
+
+      el.innerHTML = `
+        <div class="wr-card">
+          <div class="wr-card-header">
+            <div class="wr-week">${r.weekLabel}</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <span class="wr-badge ${bc(r.avgScore)}">${vl(r.avgScore)}</span>
+              <span style="font-size:12px;color:var(--t3);">Avg ${r.avgScore}/100 · SST ${r.avgSST}°F</span>
+            </div>
+          </div>
+          <div class="wr-body">
+            <p class="wr-narrative">${r.narrative}</p>
+            <div class="wr-zones">${zonesHTML}</div>
+            <div class="wr-footer">
+              <div class="wr-species">${speciesHTML}</div>
+              <a href="reports.html" class="wr-read-more">Full report + archive →</a>
+            </div>
+          </div>
+        </div>`;
+    }catch(e){
+      el.innerHTML = '<div class="wr-loading">Report unavailable — <a href="reports.html" style="color:var(--teal);">view archive</a></div>';
+    }
+  }
+  loadHomepageReport();
+})();
+</script>
 
 <!-- FOOTER -->
 <footer>
